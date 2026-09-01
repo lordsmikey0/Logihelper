@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- Название страницы в браузере -->
+    <title>Logihelper</title>
+</head>
+<body>
+<h1>Logihelper</h1>
+<p>Logisim assistant</p>
+
+<!-- Ответы от qwen -->
+<div id="chat-box"></div>
+
+<!-- User input -->
+<textarea id="user-input" placeholder="send your message..."></textarea>
+
+<button id="send-btn">Send</button>
+
+<script>
+    // Пусто
+    const sendButton = document.getElementById('send-btn')
+    const userInput = document.getElementById('user-input')
+    const chatBox = document.getElementById('chat-box')
+
+    sendButton.addEventListener('click', async function() {
+        const text = userInput.value
+
+        if (text.trim() !== "") {
+            chatBox.innerHTML = chatBox.innerHTML + `<p><b>Вы:</b> ${text}</p>`;
+            userInput.value = "";
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "text": text })
+            });
+
+            const data = await response.json();
+            const botReply = data.reply;
+            chatBox.innerHTML += `'<p style="color: #5f5fec;"><b>Помощник:</b> ${botReply}</p>'`;
+        } catch (error) {
+            chatBox.innerHTML += `<p style="color: #ea5151;"><b>Ошибка соединения</b></p>`;
+            console.error(error);
+        }
+    });
+</script>
+
+</body>
+</html>

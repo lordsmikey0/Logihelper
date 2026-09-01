@@ -1,0 +1,214 @@
+[
+  {
+    "term": "Multiplexer",
+    "aliases": ["MUX", "multiplexer", "мультиплексор", "мукс"],
+    "definition": "A combinational circuit that selects one of several input lines and forwards it to a single output line. Think of it as a digitally controlled switch.",
+    "how_it_works": "1. The circuit has 2^n data inputs (D0, D1, D2...), n selection lines (S0, S1...), and 1 output (Y). 2. Based on the binary value of the selection lines, exactly one data input is connected to the output. For example, if selection is 00, Y = D0; if selection is 01, Y = D1.",
+    "logisim_recipe": {
+      "required_blocks": [
+        "Multiplexer (found in Plexers folder)",
+        "Constant (for fixed selection)",
+        "Pin or Probe (for inputs/outputs)"
+      ],
+      "wiring_tip": "Connect data inputs to the west side, selection inputs to the bottom side, and output is on the east side. Change 'Select Bits' and 'Data Bits' properties to match your design. Leave 'Enable' unconnected or set to 0."
+    },
+    "comparison": {
+      "versus": "Demultiplexer",
+      "key_difference": "A MUX routes many inputs to ONE output. A DEMUX routes ONE input to many outputs. They perform opposite routing functions."
+    },
+    "troubleshooting": [
+      "Error: 'Incompatible widths' when connecting. Fix: Check that Data Bits in MUX properties matches the width of your input pins.",
+      "Error: Output always shows D0. Fix: Verify that selection pins are actually receiving changing values, not just floating or constant zero."
+    ]
+  },
+  {
+    "term": "Demultiplexer",
+    "aliases": ["DEMUX", "demultiplexer", "демультиплексор", "демукс"],
+    "definition": "A combinational circuit that takes a single input signal and routes it to one of several output lines based on selection inputs. It performs the reverse function of a multiplexer.",
+    "how_it_works": "1. The circuit has 1 data input (D), n selection lines (S0, S1...), and 2^n data outputs (Y0, Y1...). 2. Based on the binary value of the selection lines, the input signal appears on exactly one output. All other outputs remain 0. For example, if selection is 10, then Y2 = D and all other Y outputs = 0.",
+    "logisim_recipe": {
+      "required_blocks": [
+        "Demultiplexer (found in Plexers folder)",
+        "Constant (for fixed selection)",
+        "Pin or Probe (for input)",
+        "Splitter (optional, for grouped outputs)"
+      ],
+      "wiring_tip": "Connect the data input to the west side, selection inputs to the bottom side, and outputs are on the east side. Adjust 'Select Bits' property to control how many outputs you get (2^Select Bits). Unused outputs will show error values unless connected."
+    },
+    "comparison": {
+      "versus": "Multiplexer",
+      "key_difference": "A DEMUX routes ONE input to many outputs. A MUX routes many inputs to ONE output. Use a MUX to choose between signals, use a DEMUX to send one signal to different destinations."
+    },
+    "troubleshooting": [
+      "Error: Blue 'E' or 'X' on unconnected outputs. Fix: Connect all outputs to something (probes, pins, or ground). Logisim expects all outputs to be driven.",
+      "Error: Output shows value even when not selected. Fix: This cannot happen with DEMUX – only the selected output carries the input value. Check that you're not confusing it with a Decoder."
+    ]
+  },
+  {
+    "term": "Decoder",
+    "aliases": ["decoder", "дешифратор", "декодер"],
+    "definition": "A combinational circuit that converts binary information from n input lines to a maximum of 2^n unique output lines. Exactly one output is active (1) at any time based on the input combination.",
+    "how_it_works": "1. The circuit has n input lines and 2^n output lines. 2. For each binary input combination, exactly one corresponding output is 1; all others are 0. For example, 2-to-4 decoder: input 01 makes output Y1=1, Y0=Y2=Y3=0. This is essentially a binary-to-one-hot converter.",
+    "logisim_recipe": {
+      "required_blocks": [
+        "Decoder (found in Plexers folder)",
+        "Pin (for inputs)",
+        "Pin or LED (for outputs)",
+        "Constant (for enable, if needed)"
+      ],
+      "wiring_tip": "Connect inputs to the bottom side. Outputs are on the east side. The built-in Logisim Decoder has an Enable pin on the north side – when disabled (0), all outputs are 0. Change 'Select Bits' property to set input width."
+    },
+    "comparison": {
+      "versus": "Demultiplexer",
+      "key_difference": "A Decoder sets the selected output to 1 and others to 0. A DEMUX routes the actual input signal value to the selected output. A Decoder has no data input (only selection); a DEMUX has both data and selection inputs."
+    },
+    "troubleshooting": [
+      "Error: Multiple outputs active simultaneously. Fix: This is impossible with a real Decoder. If you see this, you accidentally used a Demultiplexer instead.",
+      "Error: All outputs always 0. Fix: Check the Enable pin (north side). It must be connected to a logic 1 (high) or Vcc for the Decoder to work."
+    ]
+  },
+  {
+    "term": "Half Adder",
+    "aliases": ["half adder", "полусумматор"],
+    "definition": "A combinational circuit that adds two single-bit binary numbers. It produces a Sum and a Carry output but cannot accept an input carry from a previous stage.",
+    "how_it_works": "1. Two inputs: A and B. Two outputs: Sum (S) and Carry (C_out). 2. Sum = A XOR B. Carry = A AND B. 3. Truth table: 0+0 gives S=0, C=0; 0+1 gives S=1, C=0; 1+0 gives S=1, C=0; 1+1 gives S=0, C=1. The Half Adder is insufficient for multi-bit addition because it lacks a Carry-in input.",
+    "logisim_recipe": {
+      "required_blocks": [
+        "XOR gate (for Sum)",
+        "AND gate (for Carry)",
+        "Pin (x2, for inputs A and B)",
+        "Pin or Probe (x2, for outputs Sum and Carry)"
+      ],
+      "wiring_tip": "Connect both A and B to the inputs of XOR gate (output = Sum). Connect both A and B to the inputs of AND gate (output = Carry). Use Logisim's built-in 'Half Adder' from the Arithmetic folder to save time, but building it manually with gates is good for learning."
+    },
+    "comparison": {
+      "versus": "Full Adder",
+      "key_difference": "A Half Adder has NO Carry-in input, so it can only add the two least significant bits (LSB) of multi-bit numbers. A Full Adder has a Carry-in input, making it chainable for multi-bit addition."
+    },
+    "troubleshooting": [
+      "Error: 1+1 gives Sum=1, Carry=0. Fix: You used OR instead of XOR for the Sum calculation. Replace OR gate with XOR gate.",
+      "Error: Wires from same source look crossed/confusing. Fix: Use Splitters or Tunnels in Logisim to route A and B cleanly to both gates."
+    ]
+  },
+  {
+    "term": "Full Adder",
+    "aliases": ["full adder", "полный сумматор", "одноразрядный сумматор"],
+    "definition": "A combinational circuit that adds three single-bit binary numbers: two operands (A and B) and a Carry-in (C_in) from the previous bit position. It outputs a Sum and a Carry-out (C_out).",
+    "how_it_works": "1. Three inputs: A, B, C_in. Two outputs: Sum, C_out. 2. Sum = A XOR B XOR C_in. C_out = (A AND B) OR (C_in AND (A XOR B)). 3. A Full Adder can be built from two Half Adders and an OR gate: first Half Adder adds A and B, second Half Adder adds its Sum with C_in. The final Carry-out is the OR of the two Half Adders' Carry outputs.",
+    "logisim_recipe": {
+      "required_blocks": [
+        "XOR gate (x2, for Sum chain)",
+        "AND gate (x2, for Carry generation)",
+        "OR gate (to combine Carries)",
+        "Pin (x3, for A, B, C_in)",
+        "Pin or Probe (x2, for Sum, C_out)"
+      ],
+      "wiring_tip": "Chain: XOR1(A,B) -> Sum_intermediate. XOR2(Sum_intermediate, C_in) -> Final Sum. AND1(A,B) -> Carry1. AND2(Sum_intermediate, C_in) -> Carry2. OR(Carry1, Carry2) -> C_out. To make a multi-bit adder, connect C_out of bit 0 to C_in of bit 1."
+    },
+    "comparison": {
+      "versus": "Half Adder",
+      "key_difference": "Full Adder has a Carry-in (C_in) input, making it chainable for adding multi-bit numbers (like in a Ripple Carry Adder). Half Adder lacks C_in, so it can only add the LSB."
+    },
+    "troubleshooting": [
+      "Error: Sum and Carry correct for some inputs but wrong for A=1, B=1, C_in=1 (should be Sum=1, C_out=1). Fix: Double-check the OR gate connection. Both Carry1 and Carry2 must be inputs to the OR gate.",
+      "Error: 'Gate not connected' warnings. Fix: Ensure all gate inputs have a connected wire. An unconnected AND gate input defaults to floating/error."
+    ]
+  },
+  {
+    "term": "Arithmetic Logic Unit",
+    "aliases": ["ALU", "arithmetic logic unit", "арифметико-логическое устройство", "АЛУ"],
+    "definition": "A combinational (or partially combinational) digital circuit that performs arithmetic and logic operations on binary numbers. The operation is selected by a control input signal. The ALU is the computational core of a CPU.",
+    "how_it_works": "1. Inputs: Two operands (A and B), a function select input (F/OpCode) that chooses the operation, and optionally a Carry-in. 2. Outputs: Result (Y), and often status flags (Zero, Carry, Negative, Overflow). 3. Internally, the ALU contains functional units (Adder, AND, OR, XOR, etc.) that all operate in parallel. A Multiplexer, driven by the select input, chooses which unit's result goes to the ALU output.",
+    "logisim_recipe": {
+      "required_blocks": [
+        "Adder/Subtractor (for arithmetic)",
+        "AND, OR, XOR, NOT gates (for logic)",
+        "Multiplexer (to select operation result)",
+        "Pin (for A, B, OpCode inputs)",
+        "Pin (for Result output)",
+        "Splitter (optional, to handle multi-bit buses)"
+      ],
+      "wiring_tip": "1. Set Data Bits to 4 or 8 for A and B. 2. Wire A and B to ALL functional blocks (Adder, AND gates, etc.) in parallel. 3. Connect the output of each functional block to a different data input of the MUX. 4. Connect the OpCode pin to the MUX's selection input. 5. The MUX output is the ALU Result. 6. Use an additional component (e.g., NOR gate on result bits) to generate the Zero flag."
+    },
+    "comparison": {
+      "versus": "Simple Adder",
+      "key_difference": "An Adder can only add numbers. An ALU can perform MULTIPLE operations (ADD, SUB, AND, OR, SLT) based on a control signal. The ALU uses a MUX to choose the result."
+    },
+    "troubleshooting": [
+      "Error: 'Incompatible widths' on MUX. Fix: All data inputs to the MUX must have the same bit width as A and B. Use Splitters or widen narrow gate outputs.",
+      "Error: Subtraction gives wrong result. Fix: Subtraction is A + (NOT B) + 1. Use the built-in Adder/Subtractor component, setting the mode pin, instead of manual gates.",
+      "Error: Zero flag is always 0. Fix: This requires a multi-input NOR (or OR + NOT) connected to all bits of the Result bus. If any bit is 1, Zero flag must be 0."
+    ]
+  },
+    {
+    "term": "D Flip-Flop",
+    "aliases": ["D flip-flop", "D триггер", "триггер", "D-триггер"],
+    "definition": "A clocked sequential circuit that captures the value on its D (Data) input at the active edge of the clock signal and holds it stable on the Q output until the next active clock edge. It is a 1-bit memory element and the fundamental building block of registers.",
+    "how_it_works": "1. Inputs: D (Data), Clock (clk). Outputs: Q and usually Q_not (inverted Q). 2. On the rising edge of the clock (transition from 0 to 1), the flip-flop samples the D input and transfers that value to Q. 3. Q remains unchanged regardless of D changes between clock edges. This edge-triggered behavior is what breaks feedback loops and prevents oscillation in sequential circuits.",
+    "logisim_recipe": {
+      "required_blocks": [
+        "D Flip-Flop (from Memory folder)",
+        "Clock (or Button/Pin, for manual triggering)",
+        "Pin (for D input)",
+        "Pin or Probe (for Q output)"
+      ],
+      "wiring_tip": "Place the D Flip-Flop from the Memory folder. Connect your clock signal to the triangle-marked pin (top left). D input is on the west side. Q output is on the east side. Optionally connect Preset/Clear pins (top/bottom) to 0 to keep them inactive. Logisim's DFF updates on the RISING edge of the clock."
+    },
+    "comparison": {
+      "versus": "D Latch",
+      "key_difference": "A D Flip-Flop is EDGE-triggered (updates only at clock edge). A D Latch is LEVEL-sensitive (Q follows D transparently while Enable=1). For state machines and registers, always use edge-triggered Flip-Flops to prevent timing hazards."
+    },
+    "troubleshooting": [
+      "Error: Q output never changes, even when D changes. Fix: The D Flip-Flop only updates at the clock edge. Use the Poke tool to click the Clock input (if using manual simulation) or ensure a real Clock component is connected and running.",
+      "Error: 'Oscillation apparent' when using feedback. Fix: You created a combinational loop. Insert a D Flip-Flop in the feedback path to break the cycle and synchronize the loop.",
+      "Error: Q changes constantly even without clock edges. Fix: Check that you are using a D Flip-Flop, not a D Latch. In Logisim, select the component labeled 'D Flip-Flop', not 'D Latch'."
+    ]
+  },
+  {
+    "term": "Register",
+    "aliases": ["register", "регистр", "многоразрядный регистр", "n-bit register"],
+    "definition": "A digital circuit composed of multiple D Flip-Flops sharing a common clock signal, capable of storing a multi-bit binary word. It is the state memory element in Moore and Mealy finite state machines.",
+    "how_it_works": "1. A Register contains N parallel D Flip-Flops, all connected to the SAME clock signal. 2. When the clock edge arrives, each individual flip-flop captures its corresponding D input bit. 3. The entire N-bit input word is simultaneously stored and presented on the Q outputs until the next clock edge. 4. In a state machine, the Register holds the 'current state', providing a stable snapshot that feeds back to the next-state logic.",
+    "logisim_recipe": {
+      "required_blocks": [
+        "Register (from Memory folder)",
+        "Clock generator (or manual Button for single steps)",
+        "Pin (for Data input, set Data Bits to N)",
+        "Pin or Probe (for Q output)",
+        "Constant (if Reset/Enable needed)"
+      ],
+      "wiring_tip": "1. Place Register from Memory folder. 2. Set 'Data Bits' property to your bus width (e.g., 4 or 8). 3. Connect the multi-bit Data input (west). 4. Connect Q output (east) to your next-state logic. 5. Connect Clock to the triangle input. 6. Optional: Connect 'We' (Write enable) to 1 to allow writing; connect 'Clr' (Clear) to 0 for normal operation. The Register is the ONLY sequential block needed for state memory in FSMs."
+    },
+    "comparison": {
+      "versus": "Single D Flip-Flop",
+      "key_difference": "A D Flip-Flop stores 1 bit. A Register stores N bits in parallel. In Logisim, a Register with Data Bits=1 is functionally a D Flip-Flop, but the Register component provides a cleaner interface for multi-bit state storage with built-in enable and clear options."
+    },
+    "troubleshooting": [
+      "Error: 'Oscillation apparent' in FSM circuit. Fix: Your state memory is missing or bypassed. Insert a Register in the feedback path from next-state logic output back to current-state input. All combinational loops MUST contain a Register to break the cycle.",
+      "Error: State changes on every clock tick even when inputs are stable. Fix: This is normal if next-state logic always maps to a different state. Check your state transition conditions — you likely have no 'hold' transition defined for the current state.",
+      "Error: Q output shows 'E' or 'X' (error). Fix: The Register outputs are floating because Data input is unconnected or the Register hasn't been clocked yet. Trigger one clock pulse to load initial value, or use the Reset/Clear pin to force a known state."
+    ]
+  },
+  {
+    "term": "Clock Generator",
+    "aliases": ["clock", "clock generator", "тактовый генератор", "кнопка тиков", "синхронизация", "clk"],
+    "definition": "A component that produces a periodic oscillating digital signal (alternating between 0 and 1 at a fixed frequency) used to synchronize all sequential elements in a digital circuit. It is the heartbeat of any synchronous design.",
+    "how_it_works": "1. The Clock outputs a square wave: HIGH (1) for half the period, LOW (0) for half the period. 2. All D Flip-Flops and Registers connected to this signal capture their inputs simultaneously on the rising edge. 3. This synchronization ensures that data flows through combinational logic and stabilizes before the next edge captures it, preventing race conditions. 4. In Logisim, a Clock can be simulated with automatic continuous ticking or manually with a Button configured as a Clock.",
+    "logisim_recipe": {
+      "required_blocks": [
+        "Clock (from Wiring folder) OR Pin/Button (for manual ticking)",
+        "Probes or LEDs (optional, to visualize clock signal)"
+      ],
+      "wiring_tip": "1. Place the Clock component from the Wiring folder. 2. Open its properties and set 'Frequency' (e.g., 1 Hz for slow observation, 64 Hz for faster simulation). 3. Connect the Clock's output to ALL clock inputs on DFFs and Registers in your circuit. 4. Use 'Simulate' -> 'Ticks Enabled' (Ctrl+K) to start/stop automatic clocking. 5. For step-by-step debugging, use 'Simulate' -> 'Tick Once' (Ctrl+T) to advance one half-period."
+    },
+    "comparison": {
+      "versus": "Manual Button",
+      "key_difference": "The Clock component runs AUTOMATICALLY at a set frequency. A Button/Pin configured as Clock requires manual clicking (via Poke tool) for each tick. Use automatic Clock for fast simulation; use a Button for step-by-step debugging to observe state changes slowly."
+    },
+    "troubleshooting": [
+      "Error: Circuit seems dead, no state changes. Fix: Check that 'Ticks Enabled' is active (Simulate menu -> Ticks Enabled). If using a Button, you must manually click it with the Poke tool to generate clock edges.",
+      "Error: Some components trigger on rising edge, others on falling edge. Fix: In Logisim, standard DFFs and Registers trigger on the RISING edge. Ensure you are not using neg-edge components unless intentionally. Consistent edge polarity is critical.",
+      "Error: 'Timing violation' or glitchy outputs. Fix: Your combinational logic path is too long and doesn't stabilize within one clock period. Reduce logic depth between Registers or lower Clock frequency to give signals more time to propagate."
+    ]
+  }
+]
