@@ -44,6 +44,12 @@ def generate_answer(model, query_raw) -> dict:
         2. Answer in Russian, be friendly and short.
         3. If no context provided, say you don't know.
         
+        TRANSLATION RULES:
+        - West = Запад (слева)
+        - East = Восток (справа)
+        - South = Юг (снизу)
+        - North = Север (сверху)
+        
         CRITICAL RENDERING RULES:
         1. NEVER draw ASCII art diagrams, schematics, or text boxes like "+---+". 
         2. If the user asks "how to build/wire" ("как собрать/подключить"), explain it strictly using a numbered text list.
