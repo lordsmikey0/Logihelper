@@ -44,7 +44,7 @@ def generate_answer(model, query_raw) -> dict:
         2. Answer in Russian, be friendly and short.
         3. If no context provided, say you don't know.
         
-        TRANSLATION RULES:
+        TRANSLATION RULES:gi
         - West = Запад (слева)
         - East = Восток (справа)
         - South = Юг (снизу)
@@ -94,7 +94,7 @@ def generate_answer(model, query_raw) -> dict:
 if __name__ == "__main__":
     query_raw = input()
 
-    model_name = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+    model_name = "Qwen/Qwen2.5-Coder-3B-Instruct"
     model = init_model(model_name)
 
     model_output = generate_answer(model, query_raw)
@@ -105,4 +105,4 @@ if __name__ == "__main__":
                      query_raw,
                      model_output["generated_text"])
 
-    print(model_output["generated_text"])
+    print("[ASSISTANT]:", model_output["generated_text"])

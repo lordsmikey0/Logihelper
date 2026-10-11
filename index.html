@@ -1,54 +1,25 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <!-- Название страницы в браузере -->
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Logihelper</title>
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-<h1>Logihelper</h1>
-<p>Logisim assistant</p>
-
-<!-- Ответы от qwen -->
-<div id="chat-box"></div>
-
-<!-- User input -->
-<textarea id="user-input" placeholder="send your message..."></textarea>
-
-<button id="send-btn">Send</button>
-
-<script>
-    // Пусто
-    const sendButton = document.getElementById('send-btn')
-    const userInput = document.getElementById('user-input')
-    const chatBox = document.getElementById('chat-box')
-
-    sendButton.addEventListener('click', async function() {
-        const text = userInput.value
-
-        if (text.trim() !== "") {
-            chatBox.innerHTML = chatBox.innerHTML + `<p><b>Вы:</b> ${text}</p>`;
-            userInput.value = "";
-        }
-
-        try {
-            const response = await fetch('http://127.0.0.1:8000/ask', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ "text": text })
-            });
-
-            const data = await response.json();
-            const botReply = data.reply;
-            chatBox.innerHTML += `'<p style="color: #5f5fec;"><b>Помощник:</b> ${botReply}</p>'`;
-        } catch (error) {
-            chatBox.innerHTML += `<p style="color: #ea5151;"><b>Ошибка соединения</b></p>`;
-            console.error(error);
-        }
-    });
-</script>
-
+<p class="project_name">LOGIHELPER</p>
+<form>
+    <label>
+        <input
+                type="text"
+                name="text"
+                placeholder="Enter Request"
+        >
+    </label>
+    <button type="button" class="button">Send</button>
+</form>
+<div class="chat">Привет, чем могу помочь?</div>
 </body>
 </html>
