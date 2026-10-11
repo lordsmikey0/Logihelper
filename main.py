@@ -1,10 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import uvicorn
 from starlette.responses import HTMLResponse
+from assistant_main import init_model, generate_answer
+
 
 app = FastAPI()
+
+model_name = "Qwen/Qwen2.5-Coder-3B-Instruct"
+model = init_model(model_name)
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,6 +20,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/css", StaticFiles(directory="css"), name="css")
+app.mount("/js", StaticFiles(directory="js"), name="js")
+
 
 class Message(BaseModel):
     text: str
@@ -28,10 +38,9 @@ def get_home_page():
 @app.post("/ask")
 def ask_assistant(message: Message):
     user_text = message.text
-    # TODO: connect QWEN
-    bot_response = 'successful response'
+    result = generate_answer(model, message.text, stream=True)
 
-    return {"reply": bot_response}
+    return StreamingResponse(result, media_type="text/plain")
 
 
 if __name__ == "__main__":

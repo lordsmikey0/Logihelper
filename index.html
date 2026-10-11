@@ -7,19 +7,28 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Logihelper</title>
     <link rel="stylesheet" href="css/main.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
 <p class="project_name">LOGIHELPER</p>
 <form>
+    <button type="button" class="button" id="add-file">Add file</button>
     <label>
         <input
                 type="text"
                 name="text"
                 placeholder="Enter Request"
+                id="req-input"
         >
     </label>
-    <button type="button" class="button">Send</button>
+    <button type="button" class="button" id="req-send">Send</button>
 </form>
-<div class="chat">Привет, чем могу помочь?</div>
+<div class="chat" id="chat">----How can I help you?----</div>
+<p class="await_response">Assistant is working . . .</p>
+<script src="js/main.js"></script>
 </body>
 </html>

@@ -27,13 +27,32 @@ body {
     border-radius: 8px;
     width: 70px;
     height: 40px;
+    font-weight: bold;
 }
 .chat {
+    display: flex;
+    flex-direction: column;
     border: 2px solid #a4aff6;
     padding: 16px;
     border-radius: 12px;
     color: white;
     font-family: 'Roboto', sans-serif;
+    white-space: pre-wrap;
+    width: 500px;
+    height: 400px;
+    text-align: center;
+    font-size: 18px;
+    overflow-y: auto;
+}
+.message {
+    color: white;
+    margin: 7px;
+    font-family: 'Roboto', sans-serif;
+    padding: 12px 16px;
+    border-radius: 12px;
+    max-width: 75%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 .button:active {
     border-color: #6ca2ef;
@@ -55,4 +74,24 @@ form input:focus {
 }
 form input:hover {
     transform: scale(0.99);
+}
+.assistant {
+    align-self: flex-start;
+    text-align: left;
+    background: linear-gradient(to bottom, #4e4365, #433568);
+    border: 1px solid white;
+}
+.user {
+    align-self: flex-end;
+    text-align: right;
+    background: linear-gradient(to bottom, #639c6f, #47b590);
+    border: 1px solid white;
+}
+.await_response {
+    color: white;
+    font-family: 'Roboto', sans-serif;
+
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
 }

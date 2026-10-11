@@ -25,7 +25,7 @@ def init_model(model_name):
     return model
 
 
-def generate_answer(model, query_raw) -> dict:
+def generate_answer(model, query_raw, stream=False):
     """
     Generate the answer to the question
     """
@@ -82,9 +82,17 @@ def generate_answer(model, query_raw) -> dict:
     thread = Thread(target=model.generate, kwargs=generation_kwargs)
     thread.start()
 
+    if stream:
+        def token_generator():
+            for new_token in streamer:
+                yield new_token
+
+            thread.join()
+
+        return token_generator()
+
     generated_text = ""
     for new_token in streamer:
-        # Промежуточно генерирующийся и обновляющийся текст
         generated_text += new_token
 
     thread.join()
