@@ -1,6 +1,8 @@
 const input = document.getElementById("req-input");
 const button = document.getElementById("req-send");
 const chat = document.getElementById("chat");
+const awaitResponse = document.querySelector(".await_response");
+
 
 function addMessage(text, role) {
     const message = document.createElement("div");
@@ -19,6 +21,8 @@ button.addEventListener("click", async function() {
         // юзер
         addMessage(input.value, "user");
 
+        awaitResponse.style.opacity = "1";
+
         const response = await fetch("/ask", {
             method: "POST",
             headers: {
@@ -30,10 +34,27 @@ button.addEventListener("click", async function() {
         });
         input.value = "";
 
-        const data = await response.json();
+        addMessage("", "assistant");
+        const assistantMessage = chat.lastElementChild;
 
-        // модель
-        addMessage(data.reply, "assistant");
-        console.log(data.reply);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { value, done } = await reader.read();
+
+            if (done) {
+                break;
+            }
+
+            assistantMessage.textContent += decoder.decode(
+                value,
+                { stream: true }
+            );
+
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        awaitResponse.style.opacity = "0";
     }
 });
