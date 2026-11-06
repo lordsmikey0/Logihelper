@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -6,6 +9,11 @@ from pydantic import BaseModel
 import uvicorn
 from starlette.responses import HTMLResponse
 from assistant_main import MODEL_NAME, init_model, generate_answer
+
+
+if __name__ == "__main__":
+    # Resolve project resources consistently when an IDE launches this file.
+    os.chdir(Path(__file__).resolve().parent)
 
 
 app = FastAPI()
