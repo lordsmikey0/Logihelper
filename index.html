@@ -2,50 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Logihelper</title>
-    <link rel="stylesheet" href="css/main.css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/main.js" defer></script>
 </head>
 <body>
     <div class="layout">
-        <div class="left_panel" id="left-panel">
-            <p class="logo_left_panel">Logihelper Assistant</p>
-            <p class="logo_left_panel_bottom">How can I help you?</p>
-            <div class="button_left_panel"></div>
-            <div class="button_left_panel"></div>
-            <div class="button_left_panel"></div>
-            <div class="button_left_panel"></div>
-            <div class="button_left_panel"></div>
-            <div class="button_left_panel"></div>
-            <div class="button_left_panel"></div>
-            <div class="button_left_panel"></div>
-            <div class="button_left_panel"></div>
-        </div>
-        <div class="main_content">
-            <p class="project_name">LOGIHELPER</p>
-            <form>
-                <button type="button" class="button" id="add-file">Add file</button>
-                <label>
-                    <input
-                        type="text"
-                        name="text"
-                        placeholder="Enter Request"
-                        id="req-input"
-                    >
-                </label>
-                <button type="button" class="button" id="req-send">Send</button>
-            </form>
-            <div class="chat" id="chat">----How can I help you?----</div>
-            <p class="await_response">Assistant is working . . .</p>
-        </div>
+        <aside class="sidebar" aria-label="Workspace">
+            <div class="brand">
+                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="5" y="5" width="14" height="14" rx="2"/>
+                    <path d="M9 2v3m6-3v3M9 19v3m6-3v3M2 9h3m-3 6h3m14-6h3m-3 6h3M9 9h2v6h4"/>
+                </svg>
+                <div>
+                    <span class="brand-name">Logihelper</span>
+                    <span class="muted brand-caption">Digital logic assistant</span>
+                </div>
+            </div>
+            <section class="sidebar-section" aria-labelledby="recent-heading">
+                <h2 id="recent-heading">Recent chats</h2>
+                <div class="current-chat" aria-current="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20 15a3 3 0 0 1-3 3H9l-5 3V6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3Z"/>
+                    </svg>
+                    Current chat
+                </div>
+                <p class="muted history-placeholder">Chat history is unavailable.</p>
+            </section>
+        </aside>
+
+        <main class="workspace" aria-labelledby="chat-heading">
+            <header class="workspace-header">
+                <h1 id="chat-heading">Chat</h1>
+            </header>
+            <div class="conversation" id="conversation" tabindex="0" aria-label="Conversation">
+                <div class="chat-column">
+                    <div class="welcome" id="welcome">
+                        <h2>How can I help?</h2>
+                        <p class="muted">Ask about digital logic, circuits, or Logisim.</p>
+                    </div>
+                    <div class="messages" id="chat" role="log" aria-label="Messages"></div>
+                </div>
+            </div>
+            <footer class="composer-area">
+                <div class="chat-column">
+                    <p class="chat-status muted" id="chat-status" role="status"></p>
+                    <form class="composer" id="chat-form">
+                        <textarea id="req-input" name="text" rows="2" required
+                                  aria-label="Message" placeholder="Ask anything about digital logic…"></textarea>
+                        <button class="send-button" id="req-send" type="submit" disabled>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="m22 2-7 20-4-9-9-4 20-7ZM11 13 22 2"/>
+                            </svg>
+                            Send
+                        </button>
+                    </form>
+                    <p class="composer-hint muted">Enter to send · Shift + Enter for a new line</p>
+                </div>
+            </footer>
+        </main>
     </div>
-    <script src="js/main.js"></script>
 </body>
 </html>
