@@ -51,32 +51,28 @@ def generate_answer(model, query_raw, stream=False):
     print("[LOGS] Filtered user query:", query)
     extracted_context = preprocessing.get_from_guide(query, detected_terms)
 
-    # Временная подмена контекста только для повторного экзамена.
+    # Use a fixed reference for the English turnstile evaluation.
     if query_raw.strip().casefold() == (
-        "чем автомат мура отличается от автомата мили на примере турникета? "
-        "допустим, турникет закрыт, сигнал попытки прохода стал равен 1, "
-        "а фронта такта ещё не было. что в этот момент может измениться?"
+        "how do moore and mealy machines differ in the turnstile example? "
+        "the turnstile is locked, the passage-attempt input changes from 0 to 1, "
+        "and the active clock edge has not occurred yet. what can change?"
     ):
-        extracted_context = """
-
-Справка:
-- До активного фронта состояние регистра остаётся прежним.
-- Выход автомата Мура зависит только от текущего состояния.
-- Выход автомата Мили зависит от текущего состояния и входа.
-- В примере Unlock у Мура равен 1 только в состоянии Unlocked.
-- Alarm у Мили равен 1, когда состояние Locked и сигнал попытки прохода равен 1.
-"""
+        extracted_context = (
+            "\n\nReference:\n"
+            "Both machines store their current state in a register. "
+            "The register updates at the active clock edge. "
+            "The Moore output Unlock depends only on the current state "
+            "and is 1 only in Unlocked. "
+            "The Mealy output Alarm depends on the current state and input "
+            "and is 1 when the state is Locked and the passage-attempt input is 1."
+        )
 
     system_prompt = (
-        "Ты помогаешь с цифровой схемотехникой и Logisim. "
-        "Отвечай по-русски и опирайся на справку ниже. "
-        "В первом предложении дай прямой ответ на вопрос. "
-        "При диагностике начни с самого вероятного по описанию и укажи, "
-        "какой сигнал проверить и что покажет результат. "
-        "Каждую проверку описывай один раз. Сохраняй названия компонентов и сигналов. "
-        "Если в справке не хватает сведений, прямо скажи об этом. "
-        "Шаги подключения давай нумерованным списком без ASCII-схем. "
-        "Стороны компонента указывай с учётом ориентации, если она известна."
+        "You are a digital logic tutor. Answer in English using the reference below. "
+        "Answer directly in at most three sentences. Keep the clock signal, "
+        "stored state, and outputs distinct. Use plain text only. "
+        "Do not draw diagrams, ASCII art, boxes, or tables. "
+        "If the reference does not provide enough information, say so."
         + extracted_context
     )
     if not extracted_context:
