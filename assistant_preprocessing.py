@@ -1,14 +1,17 @@
 from rapidfuzz import process, fuzz
 import os
 import json
+import re
 
 
 ALIASES = {
     "мультиплексор": "Multiplexer",
     "мукс": "Multiplexer",
+    "multiplexer": "Multiplexer",
     "mux": "Multiplexer",
     "демультиплексор": "Demultiplexer",
     "демукс": "Demultiplexer",
+    "demultiplexer": "Demultiplexer",
     "demux": "Demultiplexer",
     "декодер": "Decoder",
     "дешифратор": "Decoder",
@@ -25,17 +28,57 @@ ALIASES = {
     "мили": "Mealy machine"
 }
 
+ENGLISH_ALIASES = {
+    "decoder": "Decoder",
+    "half adder": "Half Adder",
+    "full adder": "Full Adder",
+    "arithmetic logic unit": "Arithmetic Logic Unit",
+    "d flip-flop": "D flip-flop",
+    "register": "Register",
+    "n-bit register": "Register",
+    "clock": "Clock",
+    "clock generator": "Clock",
+    "clk": "Clock",
+    "moore": "Moore machine",
+    "moore machine": "Moore machine",
+    "moore fsm": "Moore machine",
+    "mealy": "Mealy machine",
+    "mealy machine": "Mealy machine",
+    "mealy fsm": "Mealy machine",
+}
+
+# Match complete phrases before their shorter aliases.
+_ENGLISH_ALIAS_PATTERN = re.compile(
+    r"\b(" + "|".join(
+        r"\s+".join(map(re.escape, alias.split()))
+        for alias in sorted(ENGLISH_ALIASES, key=len, reverse=True)
+    ) + r")\b"
+)
+
+
 def normalize_user_query(user_query: str):
     """
     Возвращает:
     - clean_query (str): нормализованная строка для анализа маркеров
     - detected_term (str | None): точное имя найденного компонента для базы знаний
     """
-    words = user_query.lower().split()
     normalized_words = []
     detected_terms = set()
 
+    words = []
+    for index, part in enumerate(_ENGLISH_ALIAS_PATTERN.split(user_query.lower())):
+        if index % 2:
+            words.append(" ".join(part.split()))
+        else:
+            words.extend(part.split())
+
     for word in words:
+        if word in ENGLISH_ALIASES:
+            term_name = ENGLISH_ALIASES[word]
+            normalized_words.append(term_name.lower())
+            detected_terms.add(term_name)
+            continue
+
         if len(word) <= 2:
             normalized_words.append(word)
             continue
