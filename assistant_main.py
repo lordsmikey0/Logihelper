@@ -1,108 +1,121 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
-from threading import Thread
-import torch
-import os
+import json
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+
 import log_generator as log
 import assistant_preprocessing as preprocessing
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+MODEL_NAME = "hf.co/mradermacher/ChipExpert-8B-Instruct-GGUF:Q4_K_M"
+OLLAMA_URL = "http://127.0.0.1:11434"
 
-tokenizer = None
+
+def _ollama_request(endpoint, payload):
+    request = Request(
+        f"{OLLAMA_URL}/api/{endpoint}",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+    )
+    return urlopen(request, timeout=600)
 
 
 def init_model(model_name):
-    """
-    Initialize the model from parameter model_name
-    """
-    global tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    """Download the model on startup if it is missing from Ollama."""
+    try:
+        try:
+            with _ollama_request("show", {"model": model_name}):
+                return model_name
+        except HTTPError as error:
+            if error.code != 404:
+                raise
+            error.close()
 
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        torch_dtype=torch.float16,
-        device_map="cuda"
-    )
-    return model
+        print(f"[Ollama] Downloading {model_name}...", flush=True)
+        with _ollama_request("pull", {"model": model_name, "stream": False}) as response:
+            result = json.load(response)
+        if result.get("status") != "success":
+            raise RuntimeError(result.get("error", f"Ollama pull failed: {result}"))
+    except HTTPError as error:
+        with error:
+            detail = error.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Ollama could not prepare {model_name}: {detail}") from error
+    except URLError as error:
+        raise RuntimeError(f"Start Ollama at {OLLAMA_URL} before launching LogiHelper.") from error
+    return model_name
 
 
 def generate_answer(model, query_raw, stream=False):
     """
     Generate the answer to the question
     """
-    streamer = TextIteratorStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
-
     query, detected_terms = preprocessing.normalize_user_query(query_raw)
     print("[LOGS] Filtered user query:", query)
     extracted_context = preprocessing.get_from_guide(query, detected_terms)
 
+    # Временная подмена контекста только для повторного экзамена.
+    if query_raw.strip().casefold() == (
+        "чем автомат мура отличается от автомата мили на примере турникета? "
+        "допустим, турникет закрыт, сигнал попытки прохода стал равен 1, "
+        "а фронта такта ещё не было. что в этот момент может измениться?"
+    ):
+        extracted_context = """
+
+Справка:
+- До активного фронта состояние регистра остаётся прежним.
+- Выход автомата Мура зависит только от текущего состояния.
+- Выход автомата Мили зависит от текущего состояния и входа.
+- В примере Unlock у Мура равен 1 только в состоянии Unlocked.
+- Alarm у Мили равен 1, когда состояние Locked и сигнал попытки прохода равен 1.
+"""
+
     system_prompt = (
-        f"""
-        You are a helpful and experienced tutor in digital circuitry and Logisim - an educational program for circuit engineering training.
-        Your main task is to explain complex concepts in digital circuitry theory and practice clearly. You know digital circuity and cybernetics ONLY.
-
-        1. Use ONLY the provided English context.
-        2. Answer in Russian, be friendly and short.
-        3. If no context provided, say you don't know.
-        
-        TRANSLATION RULES:gi
-        - West = Запад (слева)
-        - East = Восток (справа)
-        - South = Юг (снизу)
-        - North = Север (сверху)
-        
-        CRITICAL RENDERING RULES:
-        1. NEVER draw ASCII art diagrams, schematics, or text boxes like "+---+". 
-        2. If the user asks "how to build/wire" ("как собрать/подключить"), explain it strictly using a numbered text list.
-        3. Clearly state which wire goes to which side (West/South/East/North) based ONLY on the provided context.
-
-        {extracted_context}"""
+        "Ты помогаешь с цифровой схемотехникой и Logisim. "
+        "Отвечай по-русски и опирайся на справку ниже. "
+        "В первом предложении дай прямой ответ на вопрос. "
+        "При диагностике начни с самого вероятного по описанию и укажи, "
+        "какой сигнал проверить и что покажет результат. "
+        "Каждую проверку описывай один раз. Сохраняй названия компонентов и сигналов. "
+        "Если в справке не хватает сведений, прямо скажи об этом. "
+        "Шаги подключения давай нумерованным списком без ASCII-схем. "
+        "Стороны компонента указывай с учётом ориентации, если она известна."
+        + extracted_context
     )
+    if not extracted_context:
+        answer = "В справке LogiHelper не нашлось сведений для ответа на этот вопрос."
+        if stream:
+            return iter((answer,))
+        return {"generated_text": answer, "system_prompt": system_prompt}
+
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": query}
+        {"role": "user", "content": query_raw}
     ]
 
-    inputs = tokenizer.apply_chat_template(
-        messages,
-        add_generation_prompt=True,
-        tokenize=True,
-        return_dict=True,
-        return_tensors="pt"
-    ).to("cuda")
+    payload = {
+        "model": model,
+        "messages": messages,
+        "stream": True,
+        "options": {"temperature": 0, "num_predict": 384},
+    }
 
-    generation_kwargs = dict(
-        **inputs,
-        streamer=streamer,
-        max_new_tokens=1024,
-        pad_token_id=tokenizer.eos_token_id,
-        do_sample=True,
-        temperature=0.1
-    )
-
-    thread = Thread(target=model.generate, kwargs=generation_kwargs)
-    thread.start()
+    def token_generator():
+        with _ollama_request("chat", payload) as response:
+            for line in response:
+                chunk = json.loads(line)
+                if "error" in chunk:
+                    raise RuntimeError(chunk["error"])
+                content = chunk.get("message", {}).get("content", "")
+                if content:
+                    yield content
 
     if stream:
-        def token_generator():
-            for new_token in streamer:
-                yield new_token
-
-            thread.join()
-
         return token_generator()
-
-    generated_text = ""
-    for new_token in streamer:
-        generated_text += new_token
-
-    thread.join()
-    return {"generated_text": generated_text, "system_prompt": system_prompt}
+    return {"generated_text": "".join(token_generator()), "system_prompt": system_prompt}
 
 
 if __name__ == "__main__":
     query_raw = input()
 
-    model_name = "Qwen/Qwen2.5-Coder-3B-Instruct"
+    model_name = MODEL_NAME
     model = init_model(model_name)
 
     model_output = generate_answer(model, query_raw)

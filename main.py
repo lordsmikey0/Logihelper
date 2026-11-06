@@ -5,13 +5,12 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import uvicorn
 from starlette.responses import HTMLResponse
-from assistant_main import init_model, generate_answer
+from assistant_main import MODEL_NAME, init_model, generate_answer
 
 
 app = FastAPI()
 
-model_name = "Qwen/Qwen2.5-Coder-3B-Instruct"
-model = init_model(model_name)
+model = init_model(MODEL_NAME)
 
 app.add_middleware(
     CORSMiddleware,
