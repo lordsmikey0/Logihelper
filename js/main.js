@@ -69,6 +69,22 @@ function closeChatMenu() {
     }
 }
 
+function positionChatMenu(toggle, menu) {
+    const edge = 8;
+    const gap = 4;
+    const anchor = toggle.getBoundingClientRect();
+    const { clientWidth, clientHeight } = document.documentElement;
+    const { width, height } = menu.getBoundingClientRect();
+    const below = clientHeight - anchor.bottom;
+    const above = anchor.top;
+    const top = below < height + gap + edge && above > below
+        ? anchor.top - height - gap
+        : anchor.bottom + gap;
+
+    menu.style.left = `${Math.max(edge, Math.min(anchor.right - width, clientWidth - width - edge))}px`;
+    menu.style.top = `${Math.max(edge, Math.min(top, clientHeight - height - edge))}px`;
+}
+
 function renderHistory(focusThread) {
     closeChatMenu();
     chatList.replaceChildren();
@@ -105,6 +121,7 @@ function renderHistory(focusThread) {
                 menuItem = item;
                 toggle.setAttribute("aria-expanded", "true");
                 menu.hidden = false;
+                positionChatMenu(toggle, menu);
             }
         });
 
@@ -220,6 +237,9 @@ historyToggle.addEventListener("click", () => {
     const expanded = historyToggle.getAttribute("aria-expanded") === "true";
     historyToggle.setAttribute("aria-expanded", String(!expanded));
 });
+
+window.addEventListener("resize", closeChatMenu);
+chatList.closest(".sidebar").addEventListener("scroll", closeChatMenu);
 
 document.addEventListener("click", (event) => {
     if (menuItem && !menuItem.contains(event.target)) {
