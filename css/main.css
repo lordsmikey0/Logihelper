@@ -201,6 +201,10 @@ textarea {
     box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
 }
 
+.chat-menu:not([inert]) {
+    z-index: 2;
+}
+
 .chat-menu .chat-action {
     border-color: transparent;
     text-align: start;

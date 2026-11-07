@@ -22,6 +22,8 @@ const cancelDialog = document.getElementById("cancel-dialog");
 const confirmDialog = document.getElementById("confirm-dialog");
 
 const storageKey = "logihelper.chats";
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const enterEasing = "cubic-bezier(0.2, 0, 0, 1)";
 const chats = loadChats();
 const drafts = new Map();
 const notices = new WeakMap();
@@ -61,10 +63,46 @@ function titleFrom(text) {
     return characters.length > 32 ? characters.slice(0, 32).join("").trimEnd() + "…" : characters.join("");
 }
 
+function animateEntry(element, distance = 0) {
+    if (reducedMotion.matches) {
+        return;
+    }
+
+    const from = { opacity: 0 };
+    if (distance) {
+        from.transform = `translateY(${distance}px)`;
+    }
+    element.animate([from, { opacity: 1 }], { duration: 170, easing: enterEasing });
+}
+
+function fadeChatMenu(menu, opening) {
+    const from = menu.hidden ? 0 : Number(getComputedStyle(menu).opacity);
+    for (const animation of menu.getAnimations()) {
+        animation.cancel();
+    }
+
+    menu.inert = !opening;
+    if (reducedMotion.matches) {
+        menu.hidden = !opening;
+        return;
+    }
+
+    menu.hidden = false;
+    const animation = menu.animate([{ opacity: from }, { opacity: opening ? 1 : 0 }], {
+        duration: opening ? 140 : 110,
+        easing: opening ? enterEasing : "ease-in",
+        fill: "forwards",
+    });
+    animation.onfinish = () => {
+        menu.hidden = !opening;
+        animation.cancel();
+    };
+}
+
 function closeChatMenu() {
     if (menuItem) {
         menuItem.querySelector(".chat-menu-toggle").setAttribute("aria-expanded", "false");
-        menuItem.querySelector(".chat-menu").hidden = true;
+        fadeChatMenu(menuItem.querySelector(".chat-menu"), false);
         menuItem = null;
     }
 }
@@ -85,7 +123,7 @@ function positionChatMenu(toggle, menu) {
     menu.style.top = `${Math.max(edge, Math.min(top, clientHeight - height - edge))}px`;
 }
 
-function renderHistory(focusThread) {
+function renderHistory({ focusThread, createdThread } = {}) {
     closeChatMenu();
     chatList.replaceChildren();
     emptyHistory.hidden = chats.length > 0;
@@ -120,7 +158,7 @@ function renderHistory(focusThread) {
             if (!wasOpen) {
                 menuItem = item;
                 toggle.setAttribute("aria-expanded", "true");
-                menu.hidden = false;
+                fadeChatMenu(menu, true);
                 positionChatMenu(toggle, menu);
             }
         });
@@ -136,13 +174,17 @@ function renderHistory(focusThread) {
             if (action === "pin") {
                 thread.pinned = thread.pinned !== true;
                 saveChats();
-                renderHistory(thread);
+                renderHistory({ focusThread: thread });
             } else {
                 openChatDialog(thread, action === "rename");
             }
         });
 
         chatList.append(item);
+        if (thread === createdThread) {
+            animateEntry(choice, 6);
+            animateEntry(toggle, 6);
+        }
         if (thread === focusThread) {
             toggle.focus();
         }
@@ -161,7 +203,7 @@ function updateStatus() {
     }
 }
 
-function addMessage({ role, text }) {
+function addMessage({ role, text }, animate = false) {
     const message = document.createElement("article");
     message.classList.add("message", role);
 
@@ -175,12 +217,16 @@ function addMessage({ role, text }) {
     content.append(body);
     message.append(author, content);
     chat.append(message);
+    if (animate) {
+        animateEntry(message, 6);
+    }
 
     return body;
 }
 
-function selectChat(thread) {
-    if (selected !== thread) {
+function selectChat(thread, created = false) {
+    const changed = selected !== thread;
+    if (changed) {
         drafts.set(selected, input.value);
         selected = thread;
         input.value = drafts.get(thread) ?? "";
@@ -194,16 +240,24 @@ function selectChat(thread) {
         pending.body = null;
     }
     for (const message of thread?.messages ?? []) {
-        const body = addMessage(message);
+        const body = addMessage(message, created);
         if (pending?.reply === message) {
             pending.body = body;
         }
     }
 
-    renderHistory();
+    renderHistory({ createdThread: created ? thread : null });
     updateStatus();
     updateSendButton();
     scrollToBottom();
+    if (changed) {
+        for (const animation of conversation.getAnimations()) {
+            animation.cancel();
+        }
+        if (!created) {
+            animateEntry(conversation);
+        }
+    }
 }
 
 function isNearBottom() {
@@ -282,7 +336,7 @@ dialogForm.addEventListener("submit", (event) => {
             chatHeading.textContent = title;
         }
         dialog.close();
-        renderHistory(thread);
+        renderHistory({ focusThread: thread });
     } else {
         if (pending?.thread === thread) {
             pending.controller.abort();
@@ -330,10 +384,10 @@ form.addEventListener("submit", async (event) => {
     input.value = "";
 
     if (selected) {
-        addMessage(message);
+        addMessage(message, true);
     } else {
         chats.unshift(thread);
-        selectChat(thread);
+        selectChat(thread, true);
     }
 
     saveChats();
@@ -375,7 +429,7 @@ form.addEventListener("submit", async (event) => {
                     if (request.body) {
                         request.body.appendData(chunk);
                     } else {
-                        request.body = addMessage(request.reply);
+                        request.body = addMessage(request.reply, true);
                     }
 
                     if (follow) {
