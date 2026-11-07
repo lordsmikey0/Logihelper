@@ -68,10 +68,11 @@ def generate_answer(model, query_raw, stream=False):
         )
 
     system_prompt = (
-        "You are a digital logic tutor. Answer in English using the reference below. "
-        "Answer directly in at most three sentences. Keep the clock signal, "
+        "You are a tutor for cybernetics and digital logic. Answer in English using the reference below. "
+        "Answer directly in at most three sentences. In sequential logic, keep the clock signal, "
         "stored state, and outputs distinct. Use plain text only. "
         "Do not draw diagrams, ASCII art, boxes, or tables. "
+        "Think and reason in English, then write the final answer in Russian. Keep technical terms with English equivalents in parentheses. "
         "If the reference does not provide enough information, say so."
         + extracted_context
     )
