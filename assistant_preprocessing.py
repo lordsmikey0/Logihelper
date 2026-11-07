@@ -1,7 +1,10 @@
 from rapidfuzz import process, fuzz
-import os
 import json
 import re
+from pathlib import Path
+
+
+MODEL_DOCS_PATH = Path(__file__).with_name("model_docs.json")
 
 
 ALIASES = {
@@ -96,11 +99,11 @@ def normalize_user_query(user_query: str):
     return " ".join(normalized_words), list(detected_terms)
 
 
-def get_from_guide(clean_query: str, detected_terms: list, filepath: str = "logisim_docs.json") -> str:
+def get_from_guide(clean_query: str, detected_terms: list, filepath: str | Path = MODEL_DOCS_PATH) -> str:
     """
     Динамически собирает кастомный контекст для СПИСКА найденных терминов.
     """
-    if not detected_terms or not os.path.exists(filepath):
+    if not detected_terms or not Path(filepath).is_file():
         return ""
 
     with open(filepath, "r", encoding="utf-8") as f:
