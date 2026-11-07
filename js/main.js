@@ -72,7 +72,7 @@ function animateEntry(element, distance = 0) {
     if (distance) {
         from.transform = `translateY(${distance}px)`;
     }
-    element.animate([from, { opacity: 1 }], { duration: 170, easing: enterEasing });
+    element.animate([from, { opacity: 1 }], { duration: 221, easing: enterEasing });
 }
 
 function fadeChatMenu(menu, opening) {
@@ -89,7 +89,7 @@ function fadeChatMenu(menu, opening) {
 
     menu.hidden = false;
     const animation = menu.animate([{ opacity: from }, { opacity: opening ? 1 : 0 }], {
-        duration: opening ? 140 : 110,
+        duration: opening ? 182 : 143,
         easing: opening ? enterEasing : "ease-in",
         fill: "forwards",
     });
