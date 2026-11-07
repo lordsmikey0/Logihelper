@@ -134,22 +134,73 @@ textarea {
     list-style: none;
 }
 
-.chat-list li {
+.chat-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px;
     min-width: 0;
 }
 
 .chat-choice {
-    display: block;
-    width: 100%;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
     border-color: transparent;
     text-align: start;
+}
+
+.chat-choice svg {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.chat-pin {
+    color: var(--accent);
+}
+
+.chat-item:not(.is-pinned) .chat-pin {
+    display: none;
+}
+
+.chat-title {
+    flex: 1;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .chat-choice[aria-current="true"] {
     color: var(--accent);
+}
+
+.chat-menu-toggle {
+    width: 40px;
+    padding: 0;
+    border-color: transparent;
+    font-size: 1.25rem;
+}
+
+.chat-menu-toggle[aria-expanded="true"] {
+    background: var(--surface-raised);
+    color: var(--accent);
+}
+
+.chat-menu:not([hidden]) {
+    display: grid;
+    grid-column: 1 / -1;
+    justify-self: end;
+    width: min(100%, 160px);
+    padding: 4px;
+    border: 1px solid var(--surface-raised);
+    border-radius: 8px;
+    background: var(--background);
+}
+
+.chat-menu .chat-action {
+    border-color: transparent;
+    text-align: start;
 }
 
 .send-button svg {

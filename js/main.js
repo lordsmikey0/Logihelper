@@ -6,8 +6,9 @@ const chat = document.getElementById("chat");
 const welcome = document.getElementById("welcome");
 const status = document.getElementById("chat-status");
 const chatHeading = document.getElementById("chat-heading");
-const chatActions = document.getElementById("chat-actions");
 const chatList = document.getElementById("chat-list");
+const chatItemTemplate = document.getElementById("chat-item-template");
+const newChat = document.getElementById("new-chat");
 const emptyHistory = document.getElementById("empty-history");
 const storageStatus = document.getElementById("storage-status");
 const historyToggle = document.getElementById("history-toggle");
@@ -26,6 +27,8 @@ const drafts = new Map();
 const notices = new WeakMap();
 let selected = null;
 let pending = null;
+let menuItem = null;
+let dialogThread = null;
 
 function loadChats() {
     try {
@@ -58,17 +61,34 @@ function titleFrom(text) {
     return characters.length > 32 ? characters.slice(0, 32).join("").trimEnd() + "…" : characters.join("");
 }
 
-function renderHistory() {
+function closeChatMenu() {
+    if (menuItem) {
+        menuItem.querySelector(".chat-menu-toggle").setAttribute("aria-expanded", "false");
+        menuItem.querySelector(".chat-menu").hidden = true;
+        menuItem = null;
+    }
+}
+
+function renderHistory(focusThread) {
+    closeChatMenu();
     chatList.replaceChildren();
     emptyHistory.hidden = chats.length > 0;
 
-    for (const thread of chats) {
-        const item = document.createElement("li");
-        const choice = document.createElement("button");
-        choice.type = "button";
-        choice.className = "chat-action chat-choice";
-        choice.textContent = thread.title;
+    const orderedChats = [...chats].sort((a, b) => Number(b.pinned === true) - Number(a.pinned === true));
+    for (const thread of orderedChats) {
+        const item = chatItemTemplate.content.firstElementChild.cloneNode(true);
+        const choice = item.querySelector(".chat-choice");
+        const toggle = item.querySelector(".chat-menu-toggle");
+        const menu = item.querySelector(".chat-menu");
+        const pin = menu.querySelector('[data-action="pin"]');
+        item.querySelector(".chat-title").textContent = thread.title;
         choice.title = thread.title;
+        toggle.setAttribute("aria-label", `Actions for ${thread.title}`);
+        if (thread.pinned === true) {
+            item.classList.add("is-pinned");
+            choice.setAttribute("aria-label", `${thread.title} (pinned)`);
+            pin.textContent = "Unpin";
+        }
         if (thread === selected) {
             choice.setAttribute("aria-current", "true");
         }
@@ -77,8 +97,38 @@ function renderHistory() {
             historyToggle.setAttribute("aria-expanded", "false");
             chatHeading.focus();
         });
-        item.append(choice);
+
+        toggle.addEventListener("click", () => {
+            const wasOpen = menuItem === item;
+            closeChatMenu();
+            if (!wasOpen) {
+                menuItem = item;
+                toggle.setAttribute("aria-expanded", "true");
+                menu.hidden = false;
+            }
+        });
+
+        menu.addEventListener("click", (event) => {
+            const action = event.target.dataset.action;
+            if (!action) {
+                return;
+            }
+            closeChatMenu();
+            toggle.focus();
+
+            if (action === "pin") {
+                thread.pinned = thread.pinned !== true;
+                saveChats();
+                renderHistory(thread);
+            } else {
+                openChatDialog(thread, action === "rename");
+            }
+        });
+
         chatList.append(item);
+        if (thread === focusThread) {
+            toggle.focus();
+        }
     }
 }
 
@@ -120,7 +170,6 @@ function selectChat(thread) {
     }
 
     chatHeading.textContent = thread?.title ?? "Chat";
-    chatActions.hidden = !thread;
     welcome.hidden = Boolean(thread);
     chat.replaceChildren();
 
@@ -149,14 +198,15 @@ function scrollToBottom() {
     conversation.scrollTop = conversation.scrollHeight;
 }
 
-function openChatDialog(rename) {
+function openChatDialog(thread, rename) {
+    dialogThread = thread;
     dialogHeading.textContent = rename ? "Rename chat" : "Delete chat?";
     renameField.hidden = !rename;
     chatName.disabled = !rename;
     chatName.setCustomValidity("");
-    chatName.value = rename ? selected.title : "";
+    chatName.value = rename ? thread.title : "";
     deleteConfirmation.hidden = rename;
-    deleteConfirmation.textContent = rename ? "" : `Delete “${selected.title}” and its messages?`;
+    deleteConfirmation.textContent = rename ? "" : `Delete “${thread.title}” and its messages?`;
     confirmDialog.textContent = rename ? "Save" : "Delete";
     dialog.showModal();
     if (rename) {
@@ -171,7 +221,21 @@ historyToggle.addEventListener("click", () => {
     historyToggle.setAttribute("aria-expanded", String(!expanded));
 });
 
-document.getElementById("new-chat").addEventListener("click", () => {
+document.addEventListener("click", (event) => {
+    if (menuItem && !menuItem.contains(event.target)) {
+        closeChatMenu();
+    }
+});
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && menuItem) {
+        menuItem.querySelector(".chat-menu-toggle").focus();
+        closeChatMenu();
+        event.preventDefault();
+    }
+});
+
+newChat.addEventListener("click", () => {
     selectChat(null);
     input.value = "";
     updateSendButton();
@@ -179,13 +243,12 @@ document.getElementById("new-chat").addEventListener("click", () => {
     input.focus();
 });
 
-document.getElementById("rename-chat").addEventListener("click", () => openChatDialog(true));
-document.getElementById("delete-chat").addEventListener("click", () => openChatDialog(false));
 cancelDialog.addEventListener("click", () => dialog.close());
 chatName.addEventListener("input", () => chatName.setCustomValidity(""));
 
 dialogForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    const thread = dialogThread;
 
     if (!chatName.disabled) {
         const title = chatName.value.trim();
@@ -194,20 +257,25 @@ dialogForm.addEventListener("submit", (event) => {
             chatName.reportValidity();
             return;
         }
-        selected.title = title;
-        chatHeading.textContent = title;
-        renderHistory();
+        thread.title = title;
+        if (thread === selected) {
+            chatHeading.textContent = title;
+        }
         dialog.close();
+        renderHistory(thread);
     } else {
-        const removed = selected;
-        if (pending?.thread === removed) {
+        if (pending?.thread === thread) {
             pending.controller.abort();
         }
-        chats.splice(chats.indexOf(removed), 1);
+        chats.splice(chats.indexOf(thread), 1);
         dialog.close();
-        selectChat(null);
-        drafts.delete(removed);
-        chatHeading.focus();
+        if (thread === selected) {
+            selectChat(null);
+        } else {
+            renderHistory();
+        }
+        drafts.delete(thread);
+        newChat.focus();
     }
 
     saveChats();
