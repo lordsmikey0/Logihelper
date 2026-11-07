@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Logihelper</title>
-    <link rel="stylesheet" href="/css/main.css?v=6">
-    <script src="/js/main.js?v=7" defer></script>
+    <link rel="stylesheet" href="/css/main.css?v=7">
+    <script src="/js/main.js?v=8" defer></script>
 </head>
 <body>
     <div class="layout">
@@ -64,6 +64,15 @@
             </footer>
         </main>
     </div>
+    <template id="waiting-message-template">
+        <article class="message assistant">
+            <header class="message-author">Logihelper</header>
+            <div class="message-content message-waiting">
+                <span class="waiting-spinner" aria-hidden="true"></span>
+                <span>Waiting for a response…</span>
+            </div>
+        </article>
+    </template>
     <template id="chat-item-template">
         <li class="chat-item">
             <button class="chat-action chat-choice" type="button">

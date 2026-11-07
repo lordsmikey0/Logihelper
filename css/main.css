@@ -373,6 +373,34 @@ textarea {
     overflow-wrap: anywhere;
 }
 
+.message-waiting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    white-space: normal;
+}
+
+.waiting-spinner {
+    flex: 0 0 16px;
+    height: 16px;
+    border: 2px solid var(--surface-raised);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .waiting-spinner {
+        animation: waiting-spin 800ms linear infinite;
+    }
+}
+
+@keyframes waiting-spin {
+    to {
+        transform: rotate(1turn);
+    }
+}
+
 .composer-area {
     padding: 0 clamp(16px, 4vw, 40px) 12px;
 }

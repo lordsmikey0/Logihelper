@@ -3,6 +3,7 @@ const input = document.getElementById("req-input");
 const sendButton = document.getElementById("req-send");
 const conversation = document.getElementById("conversation");
 const chat = document.getElementById("chat");
+const waitingMessage = document.getElementById("waiting-message-template").content.firstElementChild.cloneNode(true);
 const welcome = document.getElementById("welcome");
 const status = document.getElementById("chat-status");
 const chatHeading = document.getElementById("chat-heading");
@@ -196,10 +197,15 @@ function updateSendButton() {
 }
 
 function updateStatus() {
-    if (pending && pending.thread === selected) {
-        status.textContent = pending.reply ? "Logihelper is responding…" : "Waiting for Logihelper…";
+    const activeRequest = pending && pending.thread === selected;
+    if (activeRequest && !pending.reply) {
+        if (!waitingMessage.isConnected) {
+            chat.append(waitingMessage);
+        }
+        status.textContent = "";
     } else {
-        status.textContent = notices.get(selected) ?? "";
+        waitingMessage.remove();
+        status.textContent = activeRequest ? "Logihelper is responding…" : notices.get(selected) ?? "";
     }
 }
 
@@ -417,6 +423,7 @@ form.addEventListener("submit", async (event) => {
             const chunk = done ? decoder.decode() : decoder.decode(value, { stream: true });
 
             if (chunk && !request.controller.signal.aborted) {
+                const follow = thread === selected && isNearBottom();
                 if (!request.reply) {
                     request.reply = { role: "assistant", text: "" };
                     thread.messages.push(request.reply);
@@ -425,7 +432,6 @@ form.addEventListener("submit", async (event) => {
                 request.reply.text += chunk;
 
                 if (thread === selected) {
-                    const follow = isNearBottom();
                     if (request.body) {
                         request.body.appendData(chunk);
                     } else {
