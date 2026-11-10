@@ -48,39 +48,24 @@ def generate_answer(model, query_raw, stream=False):
     Generate the answer to the question
     """
     query, detected_terms = preprocessing.normalize_user_query(query_raw)
+    query += " .Строго обязательно отвечай на русском."
     print("[LOGS] Filtered user query:", query)
     extracted_context = preprocessing.get_from_guide(query, detected_terms)
 
-    # Use a fixed reference for the English turnstile evaluation.
-    if query_raw.strip().casefold() == (
-        "how do moore and mealy machines differ in the turnstile example? "
-        "the turnstile is locked, the passage-attempt input changes from 0 to 1, "
-        "and the active clock edge has not occurred yet. what can change?"
-    ):
-        extracted_context = (
-            "\n\nReference:\n"
-            "Both machines store their current state in a register. "
-            "The register updates at the active clock edge. "
-            "The Moore output Unlock depends only on the current state "
-            "and is 1 only in Unlocked. "
-            "The Mealy output Alarm depends on the current state and input "
-            "and is 1 when the state is Locked and the passage-attempt input is 1."
-        )
-
     system_prompt = (
-        "You are a tutor for cybernetics and digital logic. Answer in English using the reference below. "
+        "You are a tutor for cybernetics and digital logic. Answer using the reference below. "
         "Answer directly in at most three sentences. In sequential logic, keep the clock signal, "
         "stored state, and outputs distinct. Use plain text only. "
         "Do not draw diagrams, ASCII art, boxes, or tables. "
-        "Think and reason in English, then write the final answer in Russian. Keep technical terms with English equivalents in parentheses. "
+        "If the user writes in Russian you must translate your answer to Russian. Tell if you can't. Keep technical terms with English equivalents in parentheses. "
         "If the reference does not provide enough information, say so."
         + extracted_context
     )
-    if not extracted_context:
-        answer = "В справке LogiHelper не нашлось сведений для ответа на этот вопрос."
-        if stream:
-            return iter((answer,))
-        return {"generated_text": answer, "system_prompt": system_prompt}
+    # if not extracted_context:
+    #     answer = "В справке LogiHelper не нашлось сведений для ответа на этот вопрос."
+    #     if stream:
+    #         return iter((answer,))
+    #     return {"generated_text": answer, "system_prompt": system_prompt}
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -91,7 +76,7 @@ def generate_answer(model, query_raw, stream=False):
         "model": model,
         "messages": messages,
         "stream": True,
-        "options": {"temperature": 0, "num_predict": 384},
+        "options": {"temperature": 0.5, "num_predict": 384},
     }
 
     def token_generator():
