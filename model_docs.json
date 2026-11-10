@@ -315,5 +315,394 @@
       "If Alarm changes between clock edges while Q stays fixed, that is consistent with an unregistered Mealy output.",
       "Test the same Passage input once in Locked and once in Unlocked. If the alarm does not distinguish those states, check the Q connection and the polarity of the state encoding."
     ]
+  },
+  {
+    "term": "Cybernetics",
+    "aliases": [
+      "кибернетика",
+      "cybernetics"
+    ],
+    "definition": "The study of control and communication across machines, living organisms, and social systems.",
+    "how_it_works": "A system obtains information, chooses an action, and can adjust its behavior against a goal. A thermostat measures room temperature and adjusts heating relative to a setpoint. Norbert Wiener's 1948 book helped establish cybernetics as a discipline."
+  },
+  {
+    "term": "System",
+    "aliases": [
+      "система",
+      "системы",
+      "system",
+      "система управления",
+      "control system",
+      "разомкнутое управление",
+      "open-loop control"
+    ],
+    "definition": "A set of interacting elements considered as a whole within a chosen boundary.",
+    "how_it_works": "Describe the inputs, outputs, internal state, and external disturbances. In control problems, the plant is the object being controlled and the controller chooses the input. A timer heater operates open-loop, while a thermostat uses measured temperature in a closed loop."
+  },
+  {
+    "term": "Principles of Cybernetics",
+    "aliases": [
+      "ключевые принципы кибернетики",
+      "принципы кибернетики",
+      "principles of cybernetics",
+      "cybernetic principles"
+    ],
+    "definition": "Cybernetic analysis relates a goal, information about the system, an action, and its observed result.",
+    "how_it_works": "Define the boundary and goal, identify available measurements and actions, then account for channel noise and delays. Feedback organizes control, communication carries signals, and black-box analysis is one option for modeling behavior."
+  },
+  {
+    "term": "Feedback",
+    "aliases": [
+      "обратная связь",
+      "обратной связи",
+      "положительная обратная связь",
+      "отрицательная обратная связь",
+      "feedback",
+      "negative feedback",
+      "positive feedback",
+      "замкнутый контур",
+      "closed-loop control"
+    ],
+    "definition": "The return of information about a system's state or output to influence subsequent control actions.",
+    "how_it_works": "A controller can act on the error e(t) = r(t) - y(t), where r is the setpoint and y is the measured output. A thermostat reduces heating as temperature rises. Excess gain or delay can cause oscillation even with negative feedback.",
+    "comparison": {
+      "versus": "Negative and positive feedback",
+      "key_difference": "Negative feedback counteracts a deviation. Positive feedback reinforces a change, as when a microphone picks up sound from its own speaker."
+    }
+  },
+  {
+    "term": "Information Transmission",
+    "aliases": [
+      "передача информации",
+      "передачи информации",
+      "information transmission",
+      "канал связи",
+      "communication channel"
+    ],
+    "definition": "Delivery of a message from a source to a receiver through a communication channel.",
+    "how_it_works": "An encoder represents the source message for transmission and a decoder recovers it at the receiving end. Noise, loss, limited capacity, and delay affect measurements and commands. Coding can detect or correct some errors, and lost data may require a fallback mode."
+  },
+  {
+    "term": "Entropy",
+    "aliases": [
+      "энтропия",
+      "энтропии",
+      "информационная энтропия",
+      "энтропия шеннона",
+      "entropy",
+      "shannon entropy",
+      "взаимная информация",
+      "mutual information"
+    ],
+    "definition": "Shannon entropy measures the average uncertainty of a random variable given its outcome probabilities.",
+    "how_it_works": "For discrete X, H(X) = -sum_i p_i log2(p_i), with zero-probability terms counted as zero. The unit is bits and a uniform distribution maximizes entropy for a fixed number of outcomes. Mutual information I(X;Y) = H(X) - H(X|Y) gives the average uncertainty reduction about X after observing Y."
+  },
+  {
+    "term": "Technical Cybernetics",
+    "aliases": [
+      "техническая кибернетика",
+      "технической кибернетики",
+      "technical cybernetics"
+    ],
+    "definition": "The study of control and information processing in engineered systems.",
+    "how_it_works": "It covers regulation, tracking, sequencing, state estimation, diagnosis, and adaptation. A motor controller uses measured speed to adjust its input as the load changes. A suitable conventional controller can perform this task."
+  },
+  {
+    "term": "Biological Cybernetics",
+    "aliases": [
+      "биологическая кибернетика",
+      "биологической кибернетики",
+      "biological cybernetics",
+      "гомеостаз",
+      "homeostasis"
+    ],
+    "definition": "The study and modeling of control, communication, and information processing in living systems.",
+    "how_it_works": "It models selected processes such as neural signaling and homeostasis. For example, thermoregulation changes heat production and heat loss when body temperature leaves its working range."
+  },
+  {
+    "term": "Economic Cybernetics",
+    "aliases": [
+      "экономическая кибернетика",
+      "экономической кибернетики",
+      "economic cybernetics"
+    ],
+    "definition": "The application of systems, information, and control models to economic processes.",
+    "how_it_works": "A store uses observed sales and stock to choose an order quantity, then updates its decision after delivery and new sales. Demand changes and supply delays act as disturbances. An observed association between price and sales requires further evidence to establish causality."
+  },
+  {
+    "term": "Mathematical Cybernetics",
+    "aliases": [
+      "математическая кибернетика",
+      "математической кибернетики",
+      "mathematical cybernetics"
+    ],
+    "definition": "The study of formal models of information, computation, and control.",
+    "how_it_works": "Tools include automata, computability and complexity, information theory, optimization, and dynamical models. A turnstile automaton describes locked and unlocked states and their transitions under payment and passage events. A controller also has to compute its action within the required time."
+  },
+  {
+    "term": "Black-Box Principle",
+    "aliases": [
+      "принцип черного ящика",
+      "метод черного ящика",
+      "черный ящик",
+      "черного ящика",
+      "черным ящиком",
+      "black box principle",
+      "black box method",
+      "black-box modeling",
+      "black box"
+    ],
+    "definition": "A method of modeling a system from observed inputs and outputs while abstracting from its internal structure.",
+    "how_it_works": "Apply or observe inputs and record the outputs across relevant operating conditions. A motor's speed response can be estimated from voltage measurements and validated within a tested range. Several internal mechanisms can produce the same external behavior.",
+    "comparison": {
+      "versus": "White Box",
+      "key_difference": "Black-box modeling starts from observed behavior. White-box modeling explains behavior using known internal structure and laws."
+    }
+  },
+  {
+    "term": "White Box",
+    "aliases": [
+      "белый ящик",
+      "белого ящика",
+      "белым ящиком",
+      "серый ящик",
+      "white box",
+      "gray box",
+      "grey box"
+    ],
+    "definition": "A model that uses the internal structure and known mechanisms of a system to explain its behavior.",
+    "how_it_works": "A room model can predict temperature from heater power, heat capacity, and energy losses. A gray-box model combines known structure with parameters estimated from data. In software testing, white-box tests use knowledge of internal code or structure."
+  },
+  {
+    "term": "Black Box in AI",
+    "aliases": [
+      "черный ящик в ии",
+      "черный ящик ии",
+      "непрозрачность ии",
+      "объяснимость ии",
+      "black box in ai",
+      "ai black box",
+      "ai explainability"
+    ],
+    "definition": "An AI model whose individual outputs are difficult to explain in human terms.",
+    "how_it_works": "Many parameters, nonlinear interactions, and distributed representations can make a trained model hard to interpret. Its weights can remain fixed during inference. Independent validation, error analysis, and checked explanations help assess reliability.",
+    "comparison": {
+      "versus": "Black-Box Principle",
+      "key_difference": "AI opacity concerns interpreting a particular result. The black-box principle concerns studying a system through its input-output behavior."
+    }
+  },
+  {
+    "term": "Artificial Intelligence",
+    "aliases": [
+      "искусственный интеллект",
+      "искусственного интеллекта",
+      "искусственном интеллекте",
+      "ии",
+      "artificial intelligence",
+      "ai"
+    ],
+    "definition": "The field of building systems that perform tasks such as perception, reasoning, planning, learning, and action selection.",
+    "how_it_works": "Approaches include symbolic rules, machine learning, and search. A learned model can predict equipment load while a controller separately decides how to respond. Generalization depends on data quality and independent evaluation."
+  },
+  {
+    "term": "Connectionism",
+    "aliases": [
+      "коннекционизм",
+      "коннекционизма",
+      "connectionism"
+    ],
+    "definition": "An approach to modeling cognition using networks of simple interconnected computational elements.",
+    "how_it_works": "A concept can be encoded by the activity of many elements. Learning adjusts connection parameters from data, and the elements jointly transform inputs. A network can learn to recognize handwritten digits from examples and be evaluated on unseen digits."
+  },
+  {
+    "term": "Artificial Neural Networks",
+    "aliases": [
+      "искусственные нейронные сети",
+      "искусственная нейронная сеть",
+      "нейронная сеть",
+      "нейронные сети",
+      "нейронных сетей",
+      "нейросеть",
+      "нейросети",
+      "инс",
+      "artificial neural network",
+      "artificial neural networks",
+      "neural network",
+      "neural networks",
+      "ann"
+    ],
+    "definition": "Parameterized models made of connected computational units.",
+    "how_it_works": "A feedforward network computes a prediction from the input and its parameters. Training adjusts the parameters to reduce a loss, while inference uses the current parameters. Recurrent networks can retain a changing state distinct from their learned weights."
+  },
+  {
+    "term": "Evolutionary Approach",
+    "aliases": [
+      "эволюционный подход",
+      "эволюционные алгоритмы",
+      "генетический алгоритм",
+      "evolutionary approach",
+      "evolutionary algorithm",
+      "evolutionary algorithms",
+      "genetic algorithm"
+    ],
+    "definition": "A family of search methods that create variants and select candidates using a quality criterion.",
+    "how_it_works": "Evaluate a population, select candidates, and produce variants through mutation and sometimes recombination. Controller tuning can rank candidates by error, settling time, and energy use. Many evaluations may be needed, and a global optimum is not guaranteed."
+  },
+  {
+    "term": "Chinese Room",
+    "aliases": [
+      "китайская комната",
+      "китайской комнаты",
+      "китайская комната серла",
+      "chinese room",
+      "chinese room argument"
+    ],
+    "definition": "John Searle's 1980 thought experiment about symbol processing and understanding.",
+    "how_it_works": "A person who does not know Chinese follows written rules to produce convincing Chinese replies. Searle argues that syntax alone does not yield semantics. The systems reply suggests that the whole setup might understand even if the person does not. This is a philosophical dispute about understanding."
+  },
+  {
+    "term": "Industry 1.0",
+    "aliases": [
+      "индустрия 1.0",
+      "индустрии 1.0",
+      "industry 1.0",
+      "первая промышленная революция",
+      "first industrial revolution"
+    ],
+    "definition": "The stage of production mechanization driven by water and steam power, beginning around the second half of the eighteenth century.",
+    "how_it_works": "Mechanized spinning and weaving expanded factory production. Mechanical governors illustrate that feedback control existed in technology before cybernetics became a discipline."
+  },
+  {
+    "term": "Industry 2.0",
+    "aliases": [
+      "индустрия 2.0",
+      "индустрии 2.0",
+      "industry 2.0",
+      "вторая промышленная революция",
+      "second industrial revolution"
+    ],
+    "definition": "The stage of electrification and mass production associated with the late nineteenth and early twentieth centuries.",
+    "how_it_works": "Electric motors gave factories more flexibility in placing machinery. Standardized parts, division of labor, and assembly lines supported repeated operations at scale."
+  },
+  {
+    "term": "Industry 3.0",
+    "aliases": [
+      "индустрия 3.0",
+      "индустрии 3.0",
+      "industry 3.0",
+      "третья промышленная революция",
+      "third industrial revolution"
+    ],
+    "definition": "The stage of industrial automation based on electronics, computers, and programmable control, emerging in the second half of the twentieth century.",
+    "how_it_works": "Programmable logic controllers read sensors and operate actuators, while CNC machines and industrial robots automate production tasks. These controllers can also form part of connected Industry 4.0 systems."
+  },
+  {
+    "term": "Industry 4.0",
+    "aliases": [
+      "индустрия 4.0",
+      "индустрии 4.0",
+      "industry 4.0",
+      "четвертая промышленная революция",
+      "fourth industrial revolution"
+    ],
+    "definition": "Connected manufacturing that integrates physical equipment, computing, and data to coordinate production.",
+    "how_it_works": "Sensor readings can feed fault prediction and maintenance scheduling. Cyber-physical systems, industrial IoT, and digital twins can support the integration. Full autonomy and AI in every device are optional.",
+    "comparison": {
+      "versus": "Industry 3.0",
+      "key_difference": "Industry 3.0 emphasizes programmable automation. Industry 4.0 adds integration across equipment, data, and production processes."
+    }
+  },
+  {
+    "term": "Cybernetics in Practice",
+    "aliases": [
+      "воплощение принципов кибернетики",
+      "применение кибернетики",
+      "кибернетика на практике",
+      "cybernetics in practice",
+      "applied cybernetics"
+    ],
+    "definition": "Application of cybernetic principles through measurement, information processing, control action, and observation of the result.",
+    "how_it_works": "A speed sensor reports a motor's rotation rate, a controller compares it with the setpoint, and a drive adjusts the motor. The next reading shows the effect of the action. Connected manufacturing can link local loops to analytics and scheduling."
+  },
+  {
+    "term": "Internet of Things",
+    "aliases": [
+      "интернет вещей",
+      "интернета вещей",
+      "internet of things",
+      "iot",
+      "iiot",
+      "промышленный интернет вещей",
+      "industrial internet of things"
+    ],
+    "definition": "Networked physical devices that gather or exchange data and can execute commands.",
+    "how_it_works": "A sensor or device uses a local network or a gateway to send data to a service or controller. A truck sensor can report cargo temperature. Access control, maintenance, and behavior during connection loss affect reliability.",
+    "comparison": {
+      "versus": "Cyber-Physical Systems",
+      "key_difference": "IoT emphasizes connectivity and data exchange. Cyber-physical systems emphasize the interaction between computation and the physical process."
+    }
+  },
+  {
+    "term": "Cyber-Physical Systems",
+    "aliases": [
+      "киберфизическая система",
+      "киберфизические системы",
+      "киберфизических систем",
+      "кфс",
+      "cps",
+      "cyber-physical system",
+      "cyber-physical systems",
+      "cyberphysical system",
+      "cyberphysical systems"
+    ],
+    "definition": "Systems in which computing and physical processes are tightly coupled.",
+    "how_it_works": "Sensors report the physical state, a controller computes an action, and actuators change the process. A position controller then measures the new position. Deadlines depend on the process, and reliable measurements and safe failure behavior matter."
+  },
+  {
+    "term": "Digital Twin",
+    "aliases": [
+      "цифровой двойник",
+      "цифрового двойника",
+      "цифровым двойником",
+      "цифровые двойники",
+      "digital twin",
+      "digital twins"
+    ],
+    "definition": "A digital representation of a particular physical asset or process that is updated with data about it.",
+    "how_it_works": "Motor current, vibration, and temperature can update a model used to assess heating under load or test maintenance scenarios. Update frequency and fidelity depend on the task. The model and measurement uncertainty require validation.",
+    "comparison": {
+      "versus": "Standalone simulation",
+      "key_difference": "A digital twin stays linked to data about a particular asset or process. A standalone simulation can run without that link."
+    }
+  },
+  {
+    "term": "Predictive Analytics",
+    "aliases": [
+      "предиктивная аналитика",
+      "предиктивной аналитики",
+      "прогнозная аналитика",
+      "predictive analytics",
+      "predictive analysis"
+    ],
+    "definition": "The use of data and models to estimate future or unobserved events.",
+    "how_it_works": "Define the target, use data available at prediction time, fit on past data, and evaluate on independent observations. For time-dependent tasks, validate on a later period. A model can estimate a motor's failure probability, after which a person or controller chooses an action. Monitor missed events, false alarms, and changes in operating conditions."
+  },
+  {
+    "term": "Decision Support System",
+    "aliases": [
+      "система поддержки принятия решений",
+      "системы поддержки принятия решений",
+      "система поддержки решений",
+      "сппр",
+      "decision support system",
+      "decision support systems",
+      "dss"
+    ],
+    "definition": "An information system that helps people evaluate alternatives using data, models, and criteria.",
+    "how_it_works": "A maintenance planner can compare immediate repair, weekend repair, and continued operation using failure risk, downtime cost, and staff availability. Conflicting criteria and uncertain data can leave several defensible choices.",
+    "comparison": {
+      "versus": "Predictive Analytics",
+      "key_difference": "Predictive analytics estimates what may happen. Decision support uses predictions and other evidence to compare possible actions."
+    }
   }
 ]
