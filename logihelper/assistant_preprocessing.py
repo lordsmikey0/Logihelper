@@ -6,7 +6,7 @@ from rapidfuzz import process
 from rapidfuzz.distance import DamerauLevenshtein
 
 
-MODEL_DOCS_PATH = Path(__file__).with_name("model_docs.json")
+MODEL_DOCS_PATH = Path(__file__).resolve().parents[1] / "data" / "model_docs.json"
 
 
 ALIASES = {
