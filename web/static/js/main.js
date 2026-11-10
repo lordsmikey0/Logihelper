@@ -408,6 +408,7 @@ form.addEventListener("submit", async (event) => {
     scrollToBottom();
 
     let reader;
+    let failureNotice;
     try {
         const response = await fetch("/ask", {
             method: "POST",
@@ -416,6 +417,9 @@ form.addEventListener("submit", async (event) => {
             signal: request.controller.signal,
         });
 
+        if (response.status === 502) {
+            failureNotice = await response.text();
+        }
         if (!response.ok || !response.body) {
             throw new Error("Response stream unavailable");
         }
@@ -461,7 +465,7 @@ form.addEventListener("submit", async (event) => {
         if (!request.controller.signal.aborted) {
             notices.set(thread, request.reply
                 ? "Ответ прервался. Вы можете отправить новое сообщение."
-                : "Не удалось получить ответ. Проверьте подключение и попробуйте ещё раз.");
+                : failureNotice || "Не удалось получить ответ. Проверьте подключение и попробуйте ещё раз.");
 
             if (!request.reply) {
                 if (thread === selected && !input.value) {

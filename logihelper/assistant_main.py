@@ -1,12 +1,18 @@
 import json
+import os
+from http.client import HTTPException
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from . import assistant_preprocessing as preprocessing
 from . import log_generator as log
 
-MODEL_NAME = "hf.co/mradermacher/ChipExpert-8B-Instruct-GGUF:Q4_K_M"
+MODEL_NAME = os.getenv("LOGIHELPER_MODEL", "hf.co/mradermacher/ChipExpert-8B-Instruct-GGUF:Q4_K_M")
 OLLAMA_URL = "http://127.0.0.1:11434"
+
+
+class OllamaChatError(RuntimeError):
+    """Ollama could not complete a chat request."""
 
 
 def _ollama_request(endpoint, payload):
@@ -76,18 +82,28 @@ def generate_answer(model, query_raw, stream=False):
         "model": model,
         "messages": messages,
         "stream": True,
-        "options": {"temperature": 0.5, "num_predict": 384},
+        "options": {"temperature": 0.5, "num_predict": 384, "num_ctx": 2048},
     }
 
     def token_generator():
-        with _ollama_request("chat", payload) as response:
-            for line in response:
-                chunk = json.loads(line)
-                if "error" in chunk:
-                    raise RuntimeError(chunk["error"])
-                content = chunk.get("message", {}).get("content", "")
-                if content:
-                    yield content
+        try:
+            with _ollama_request("chat", payload) as response:
+                for line in response:
+                    chunk = json.loads(line)
+                    if "error" in chunk:
+                        raise OllamaChatError(chunk["error"])
+                    content = chunk.get("message", {}).get("content", "")
+                    if content:
+                        yield content
+                    if chunk.get("done"):
+                        return
+        except HTTPError as error:
+            with error:
+                detail = error.read().decode("utf-8", errors="replace")
+            raise OllamaChatError(f"HTTP {error.code}: {detail or error.reason}") from error
+        except (OSError, HTTPException, ValueError) as error:
+            raise OllamaChatError(str(error)) from error
+        raise OllamaChatError("Ollama closed the response before finishing generation.")
 
     if stream:
         return token_generator()
