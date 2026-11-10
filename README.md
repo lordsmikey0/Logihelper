@@ -20,3 +20,5 @@ ___
 - `scripts/` — вспомогательные скрипты.
 
 При запущенной Ollama веб-приложение можно открыть через `python main.py`. Для запуска ассистента в консоли выполните `python -m logihelper.assistant_main` из корня проекта.
+
+Если Ollama сообщает о нехватке памяти, можно запустить Logihelper с более лёгкой моделью. Например, в PowerShell выполните `$env:LOGIHELPER_MODEL = "qwen2.5:1.5b"`, затем `python main.py`.
