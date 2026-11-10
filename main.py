@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -7,10 +8,12 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import uvicorn
 from starlette.responses import HTMLResponse
-from logihelper.assistant_main import MODEL_NAME, init_model, generate_answer
+from assistant_main import MODEL_NAME, init_model, generate_answer
 
 
-WEB_DIR = Path(__file__).resolve().parent / "web"
+if __name__ == "__main__":
+    # Resolve project resources consistently when an IDE launches this file.
+    os.chdir(Path(__file__).resolve().parent)
 
 
 app = FastAPI()
@@ -24,8 +27,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.mount("/css", StaticFiles(directory=WEB_DIR / "static" / "css"), name="css")
-app.mount("/js", StaticFiles(directory=WEB_DIR / "static" / "js"), name="js")
+app.mount("/css", StaticFiles(directory="css"), name="css")
+app.mount("/js", StaticFiles(directory="js"), name="js")
 
 
 class Message(BaseModel):
@@ -34,7 +37,9 @@ class Message(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 def get_home_page():
-    return (WEB_DIR / "index.html").read_text(encoding="utf-8")
+    with open('index.html', 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    return html_content
 
 
 @app.post("/ask")

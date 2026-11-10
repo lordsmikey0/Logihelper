@@ -1,1 +1,0 @@
-"""Logihelper application modules."""
