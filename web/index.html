@@ -1,15 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Logihelper</title>
-    <link rel="stylesheet" href="/css/main.css?v=7">
-    <script src="/js/main.js?v=8" defer></script>
+    <link rel="stylesheet" href="/css/main.css?v=8">
+    <script src="/js/main.js?v=9" defer></script>
 </head>
 <body>
     <div class="layout">
-        <aside class="sidebar" aria-label="Workspace">
+        <aside class="sidebar" aria-label="Рабочая область">
             <div class="brand">
                 <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -18,31 +18,31 @@
                 </svg>
                 <div>
                     <span class="brand-name">Logihelper</span>
-                    <span class="muted brand-caption">Digital logic assistant</span>
+                    <span class="muted brand-caption">Ассистент по цифровой схемотехнике</span>
                 </div>
             </div>
             <button class="chat-action history-toggle" id="history-toggle" type="button"
-                    aria-expanded="false" aria-controls="chat-history">Chats</button>
+                    aria-expanded="false" aria-controls="chat-history">Чаты</button>
             <section class="sidebar-section" id="chat-history" aria-labelledby="recent-heading">
-                <button class="chat-action new-chat" id="new-chat" type="button">+ New chat</button>
-                <h2 id="recent-heading">Recent chats</h2>
+                <button class="chat-action new-chat" id="new-chat" type="button">+ Новый чат</button>
+                <h2 id="recent-heading">Недавние чаты</h2>
                 <ul class="chat-list" id="chat-list"></ul>
-                <p class="muted history-note" id="empty-history">No chats yet.</p>
+                <p class="muted history-note" id="empty-history">Чатов пока нет.</p>
                 <p class="muted history-note" id="storage-status" role="status"></p>
             </section>
         </aside>
 
         <main class="workspace" aria-labelledby="chat-heading">
             <header class="workspace-header">
-                <h1 id="chat-heading" tabindex="-1">Chat</h1>
+                <h1 id="chat-heading" tabindex="-1">Чат</h1>
             </header>
-            <div class="conversation" id="conversation" tabindex="0" aria-label="Conversation">
+            <div class="conversation" id="conversation" tabindex="0" aria-label="Переписка">
                 <div class="chat-column">
                     <div class="welcome" id="welcome">
-                        <h2>How can I help?</h2>
-                        <p class="muted">Ask about digital logic, circuits, or Logisim.</p>
+                        <h2>Чем я могу вам помочь?</h2>
+                        <p class="muted">Спрашивайте о цифровой логике, схемах или Logisim.</p>
                     </div>
-                    <div class="messages" id="chat" role="log" aria-label="Messages"></div>
+                    <div class="messages" id="chat" role="log" aria-label="Сообщения"></div>
                 </div>
             </div>
             <footer class="composer-area">
@@ -50,16 +50,16 @@
                     <p class="chat-status muted" id="chat-status" role="status"></p>
                     <form class="composer" id="chat-form">
                         <textarea id="req-input" name="text" rows="2" required
-                                  aria-label="Message" placeholder="Ask anything about digital logic…"></textarea>
+                                  aria-label="Сообщение" placeholder="Спрашивайте о цифровой логике…"></textarea>
                         <button class="send-button" id="req-send" type="submit" disabled>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="m22 2-7 20-4-9-9-4 20-7ZM11 13 22 2"/>
                             </svg>
-                            Send
+                            Отправить
                         </button>
                     </form>
-                    <p class="composer-hint muted">Enter to send · Shift + Enter for a new line</p>
+                    <p class="composer-hint muted">Enter — отправить · Shift + Enter — новая строка</p>
                 </div>
             </footer>
         </main>
@@ -69,7 +69,7 @@
             <header class="message-author">Logihelper</header>
             <div class="message-content message-waiting">
                 <span class="waiting-spinner" aria-hidden="true"></span>
-                <span>Waiting for a response…</span>
+                <span>Ожидание ответа…</span>
             </div>
         </article>
     </template>
@@ -88,9 +88,9 @@
             </button>
             <button class="chat-action chat-menu-toggle" type="button" aria-expanded="false">⋯</button>
             <div class="chat-menu" hidden>
-                <button class="chat-action" data-action="rename" type="button">Rename</button>
-                <button class="chat-action" data-action="delete" type="button">Delete</button>
-                <button class="chat-action" data-action="pin" type="button">Pin</button>
+                <button class="chat-action" data-action="rename" type="button">Переименовать</button>
+                <button class="chat-action" data-action="delete" type="button">Удалить</button>
+                <button class="chat-action" data-action="pin" type="button">Закрепить</button>
             </div>
         </li>
     </template>
@@ -98,12 +98,12 @@
         <form id="dialog-form">
             <h2 id="dialog-heading"></h2>
             <label id="rename-field">
-                Chat name
+                Название чата
                 <input id="chat-name" type="text" maxlength="120" required>
             </label>
             <p id="delete-confirmation"></p>
             <div class="chat-actions">
-                <button class="chat-action" id="cancel-dialog" type="button">Cancel</button>
+                <button class="chat-action" id="cancel-dialog" type="button">Отмена</button>
                 <button class="chat-action primary-action" id="confirm-dialog" type="submit"></button>
             </div>
         </form>
