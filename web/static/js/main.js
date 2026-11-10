@@ -45,7 +45,7 @@ function loadChats() {
             )
         );
     } catch {
-        storageStatus.textContent = "Could not load saved chats.";
+        storageStatus.textContent = "Не удалось загрузить сохранённые чаты.";
         return [];
     }
 }
@@ -55,7 +55,7 @@ function saveChats() {
         localStorage.setItem(storageKey, JSON.stringify(chats));
         storageStatus.textContent = "";
     } catch {
-        storageStatus.textContent = "Could not save chats to this browser.";
+        storageStatus.textContent = "Не удалось сохранить чаты в браузере.";
     }
 }
 
@@ -138,11 +138,11 @@ function renderHistory({ focusThread, createdThread } = {}) {
         const pin = menu.querySelector('[data-action="pin"]');
         item.querySelector(".chat-title").textContent = thread.title;
         choice.title = thread.title;
-        toggle.setAttribute("aria-label", `Actions for ${thread.title}`);
+        toggle.setAttribute("aria-label", `Действия для чата «${thread.title}»`);
         if (thread.pinned === true) {
             item.classList.add("is-pinned");
-            choice.setAttribute("aria-label", `${thread.title} (pinned)`);
-            pin.textContent = "Unpin";
+            choice.setAttribute("aria-label", `${thread.title} (закреплён)`);
+            pin.textContent = "Открепить";
         }
         if (thread === selected) {
             choice.setAttribute("aria-current", "true");
@@ -205,7 +205,7 @@ function updateStatus() {
         status.textContent = "";
     } else {
         waitingMessage.remove();
-        status.textContent = activeRequest ? "Logihelper is responding…" : notices.get(selected) ?? "";
+        status.textContent = activeRequest ? "Logihelper отвечает…" : notices.get(selected) ?? "";
     }
 }
 
@@ -215,7 +215,7 @@ function addMessage({ role, text }, animate = false) {
 
     const author = document.createElement("header");
     author.className = "message-author";
-    author.textContent = role === "user" ? "You" : "Logihelper";
+    author.textContent = role === "user" ? "Вы" : "Logihelper";
 
     const content = document.createElement("div");
     content.className = "message-content";
@@ -238,7 +238,7 @@ function selectChat(thread, created = false) {
         input.value = drafts.get(thread) ?? "";
     }
 
-    chatHeading.textContent = thread?.title ?? "Chat";
+    chatHeading.textContent = thread?.title ?? "Чат";
     welcome.hidden = Boolean(thread);
     chat.replaceChildren();
 
@@ -277,14 +277,14 @@ function scrollToBottom() {
 
 function openChatDialog(thread, rename) {
     dialogThread = thread;
-    dialogHeading.textContent = rename ? "Rename chat" : "Delete chat?";
+    dialogHeading.textContent = rename ? "Переименовать чат" : "Удалить чат?";
     renameField.hidden = !rename;
     chatName.disabled = !rename;
     chatName.setCustomValidity("");
     chatName.value = rename ? thread.title : "";
     deleteConfirmation.hidden = rename;
-    deleteConfirmation.textContent = rename ? "" : `Delete “${thread.title}” and its messages?`;
-    confirmDialog.textContent = rename ? "Save" : "Delete";
+    deleteConfirmation.textContent = rename ? "" : `Удалить чат «${thread.title}» и все его сообщения?`;
+    confirmDialog.textContent = rename ? "Сохранить" : "Удалить";
     dialog.showModal();
     if (rename) {
         chatName.select();
@@ -325,6 +325,11 @@ newChat.addEventListener("click", () => {
 
 cancelDialog.addEventListener("click", () => dialog.close());
 chatName.addEventListener("input", () => chatName.setCustomValidity(""));
+chatName.addEventListener("invalid", () => {
+    if (chatName.validity.valueMissing) {
+        chatName.setCustomValidity("Введите название чата.");
+    }
+});
 
 dialogForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -333,7 +338,7 @@ dialogForm.addEventListener("submit", (event) => {
     if (!chatName.disabled) {
         const title = chatName.value.trim();
         if (!title) {
-            chatName.setCustomValidity("Enter a chat name.");
+            chatName.setCustomValidity("Введите название чата.");
             chatName.reportValidity();
             return;
         }
@@ -450,13 +455,13 @@ form.addEventListener("submit", async (event) => {
         }
 
         if (!request.reply?.text.trim()) {
-            notices.set(thread, "Logihelper returned an empty response.");
+            notices.set(thread, "Logihelper вернул пустой ответ.");
         }
     } catch {
         if (!request.controller.signal.aborted) {
             notices.set(thread, request.reply
-                ? "The response was interrupted. You can send another message."
-                : "Could not get a response. Check the connection and try again.");
+                ? "Ответ прервался. Вы можете отправить новое сообщение."
+                : "Не удалось получить ответ. Проверьте подключение и попробуйте ещё раз.");
 
             if (!request.reply) {
                 if (thread === selected && !input.value) {
