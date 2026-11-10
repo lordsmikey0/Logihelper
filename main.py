@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import uvicorn
 from starlette.responses import HTMLResponse
-from assistant_main import MODEL_NAME, init_model, generate_answer
+from logihelper.assistant_main import MODEL_NAME, init_model, generate_answer
 
 
 if __name__ == "__main__":

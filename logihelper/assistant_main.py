@@ -2,8 +2,8 @@ import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-import log_generator as log
-import assistant_preprocessing as preprocessing
+from . import assistant_preprocessing as preprocessing
+from . import log_generator as log
 
 MODEL_NAME = "hf.co/mradermacher/ChipExpert-8B-Instruct-GGUF:Q4_K_M"
 OLLAMA_URL = "http://127.0.0.1:11434"
