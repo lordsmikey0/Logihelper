@@ -459,10 +459,8 @@ form.addEventListener("submit", async (event) => {
     }
 
     const thread = selected ?? { title: titleFrom(text), messages: [] };
-    if (circuit && !selected) {
-        circuitDrafts.delete(null);
-        circuitDrafts.set(thread, circuit);
-    }
+    circuitDrafts.delete(selected);
+    updateCircuitAttachment();
     const request = { thread, controller: new AbortController(), reply: null, body: null };
     const message = { role: "user", text, ...(circuit ? { circuitName: circuit.name } : {}) };
     pending = request;
