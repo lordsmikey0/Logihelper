@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Logihelper</title>
-    <link rel="stylesheet" href="/css/main.css?v=8">
-    <script src="/js/main.js?v=10" defer></script>
+    <link rel="stylesheet" href="/css/main.css?v=11">
+    <script src="/js/main.js?v=11" defer></script>
 </head>
 <body>
     <div class="layout">
@@ -48,17 +48,27 @@
             <footer class="composer-area">
                 <div class="chat-column">
                     <p class="chat-status muted" id="chat-status" role="status"></p>
-                    <form class="composer" id="chat-form">
-                        <textarea id="req-input" name="text" rows="2" required
-                                  aria-label="Сообщение" placeholder="Спрашивайте о цифровой логике…"></textarea>
-                        <button class="send-button" id="req-send" type="submit" disabled>
+                    <div class="composer-row">
+                        <button class="send-button circuit-button" id="open-circuit-dialog" type="button"
+                                aria-label="Выбрать файл Logisim" aria-haspopup="dialog" title="Выбрать файл Logisim">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="m22 2-7 20-4-9-9-4 20-7ZM11 13 22 2"/>
+                                <path d="M8 13.5 15.5 6a3 3 0 0 1 4.2 4.2l-9 9a4.5 4.5 0 0 1-6.4-6.4l9-9"/>
+                                <path d="m8 13.5-1 1a1.5 1.5 0 0 0 2.1 2.1L17 8.7"/>
                             </svg>
-                            Отправить
                         </button>
-                    </form>
+                        <form class="composer" id="chat-form">
+                            <textarea id="req-input" name="text" rows="2" required
+                                      aria-label="Сообщение" placeholder="Спрашивайте о цифровой логике…"></textarea>
+                            <button class="send-button" id="req-send" type="submit" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="m22 2-7 20-4-9-9-4 20-7ZM11 13 22 2"/>
+                                </svg>
+                                Отправить
+                            </button>
+                        </form>
+                    </div>
                     <p class="composer-hint muted">Enter — отправить · Shift + Enter — новая строка</p>
                 </div>
             </footer>
@@ -106,6 +116,19 @@
                 <button class="chat-action" id="cancel-dialog" type="button">Отмена</button>
                 <button class="chat-action primary-action" id="confirm-dialog" type="submit"></button>
             </div>
+        </form>
+    </dialog>
+    <dialog class="chat-dialog" id="circuit-dialog" aria-labelledby="circuit-heading">
+        <h2 id="circuit-heading">Выбрать файл Logisim</h2>
+        <div class="circuit-drop-zone" id="circuit-drop-zone">
+            <p class="muted">Перетащите сюда файл .circ</p>
+            <button class="chat-action primary-action" id="browse-circuit" type="button" autofocus>Выбрать файл</button>
+            <input id="circuit-file" type="file" accept=".circ" hidden>
+        </div>
+        <p class="circuit-file-status" id="circuit-file-status" role="status"></p>
+        <form class="chat-actions" method="dialog">
+            <button class="chat-action" id="remove-circuit" type="button" hidden>Убрать файл</button>
+            <button class="chat-action" type="submit">Закрыть</button>
         </form>
     </dialog>
 </body>

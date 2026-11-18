@@ -21,6 +21,13 @@ const chatName = document.getElementById("chat-name");
 const deleteConfirmation = document.getElementById("delete-confirmation");
 const cancelDialog = document.getElementById("cancel-dialog");
 const confirmDialog = document.getElementById("confirm-dialog");
+const openCircuitDialog = document.getElementById("open-circuit-dialog");
+const circuitDialog = document.getElementById("circuit-dialog");
+const circuitDropZone = document.getElementById("circuit-drop-zone");
+const browseCircuit = document.getElementById("browse-circuit");
+const circuitFile = document.getElementById("circuit-file");
+const circuitFileStatus = document.getElementById("circuit-file-status");
+const removeCircuit = document.getElementById("remove-circuit");
 
 const storageKey = "logihelper.chats";
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -365,6 +372,51 @@ dialogForm.addEventListener("submit", (event) => {
 
     saveChats();
 });
+
+function selectCircuit(files) {
+    if (files.length !== 1 || !/\.circ$/i.test(files[0].name)) {
+        circuitFile.value = "";
+        circuitFileStatus.textContent = "Выберите один файл с расширением .circ.";
+        removeCircuit.hidden = true;
+        return;
+    }
+
+    circuitFile.files = files;
+    circuitFileStatus.textContent = `Выбран файл «${files[0].name}».`;
+    removeCircuit.hidden = false;
+}
+
+openCircuitDialog.addEventListener("click", () => circuitDialog.showModal());
+browseCircuit.addEventListener("click", () => circuitFile.click());
+circuitFile.addEventListener("change", () => selectCircuit(circuitFile.files));
+removeCircuit.addEventListener("click", () => {
+    circuitFile.value = "";
+    circuitFileStatus.textContent = "";
+    removeCircuit.hidden = true;
+    browseCircuit.focus();
+});
+
+circuitDialog.addEventListener("dragover", (event) => {
+    if (event.dataTransfer.types.includes("Files")) {
+        event.preventDefault();
+        const overDropZone = circuitDropZone.contains(event.target);
+        event.dataTransfer.dropEffect = overDropZone ? "copy" : "none";
+        circuitDropZone.classList.toggle("is-dragging", overDropZone);
+    }
+});
+circuitDropZone.addEventListener("dragleave", (event) => {
+    if (!circuitDropZone.contains(event.relatedTarget)) {
+        circuitDropZone.classList.remove("is-dragging");
+    }
+});
+circuitDialog.addEventListener("drop", (event) => {
+    event.preventDefault();
+    circuitDropZone.classList.remove("is-dragging");
+    if (circuitDropZone.contains(event.target) && event.dataTransfer.files.length) {
+        selectCircuit(event.dataTransfer.files);
+    }
+});
+circuitDialog.addEventListener("close", () => circuitDropZone.classList.remove("is-dragging"));
 
 input.addEventListener("input", updateSendButton);
 input.addEventListener("keydown", (event) => {

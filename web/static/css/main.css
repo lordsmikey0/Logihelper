@@ -275,7 +275,7 @@ textarea {
     font-size: 1.25rem;
 }
 
-.chat-dialog input {
+.chat-dialog input[type="text"] {
     display: block;
     width: 100%;
     margin-top: 6px;
@@ -411,7 +411,16 @@ textarea {
     margin: 0 4px 6px;
 }
 
+.composer-row {
+    display: flex;
+    align-items: center;
+    gap: 19px;
+    margin-inline-start: -11px;
+}
+
 .composer {
+    flex: 1;
+    min-width: 0;
     display: flex;
     align-items: end;
     gap: 8px;
@@ -469,6 +478,32 @@ textarea {
     cursor: default;
 }
 
+.circuit-button {
+    flex: 0 0 44px;
+    padding-inline: 0;
+}
+
+.circuit-drop-zone {
+    padding: 24px 12px;
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius);
+    background: var(--background);
+    text-align: center;
+}
+
+.circuit-drop-zone.is-dragging {
+    border-color: var(--accent);
+    background: var(--surface-raised);
+}
+
+.circuit-drop-zone p {
+    margin: 0 0 12px;
+}
+
+.circuit-file-status:empty {
+    margin: 0;
+}
+
 .composer-hint {
     margin: 6px 4px 0;
 }
@@ -519,5 +554,10 @@ textarea {
 
     .workspace-header {
         min-height: 44px;
+    }
+
+    .composer-row {
+        gap: 8px;
+        margin-inline-start: 0;
     }
 }
