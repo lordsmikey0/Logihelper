@@ -85,7 +85,11 @@ def generate_answer(model, query_raw, stream=False, circuit_description=""):
         "model": model,
         "messages": messages,
         "stream": True,
-        "options": {"temperature": 0.5, "num_predict": 384, "num_ctx": 2048},
+        "options": {"temperature": 0.5,
+                    "num_predict": 384,
+                    "num_ctx": 2048,
+                    "repeat_penalty": 1.15,
+                    "repeat_last_n": 128,},
     }
 
     def token_generator():
