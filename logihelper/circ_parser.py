@@ -212,46 +212,45 @@ class CircParser:
         self.path: Path = Path(path)
 
     def parse(self):
+        return self.parse_text(self.path.read_text(encoding="utf-8"))
+
+    @staticmethod
+    def parse_text(text):
         components: list = []
         wires: list = []
+        root = ET.fromstring(text)
+        circuit = root.find("./circuit[@name='main']")
 
-        with self.path.open("r", encoding="utf-8") as f:
-            lines = f.readlines()
-            lines.pop(2)
-            root = ET.fromstring("".join(lines))
+        if circuit is None:
+            raise ValueError("Circuit 'Main' is not found")
 
-            circuit = root.find("./circuit[@name='main']")
+        for comp in circuit.findall("comp"):
+            name = comp.get("name")
+            location = tuple([int(x) for x in \
+                        comp.get("loc").replace("(", "").replace(")", "").split(",")])
 
-            if circuit is None:
-                raise ValueError("Circuit 'Main' is not found")
+            if all(name not in COMPONENTS[x] for x in COMPONENTS):
+                raise ValueError(f"No such component: {name}")
 
-            for comp in circuit.findall("comp"):
-                name = comp.get("name")
-                location = tuple([int(x) for x in \
-                            comp.get("loc").replace("(", "").replace(")", "").split(",")])
+            for x in COMPONENTS:
+                if name in COMPONENTS[x]:
+                    cls = COMPONENT_CLASSES[x]
 
-                if all(name not in COMPONENTS[x] for x in COMPONENTS):
-                    raise ValueError(f"No such component: {name}")
+                    attributes = dict()
+                    for attr in comp.findall("a"):
+                        attributes[attr.get("name")] = attr.get("val")
 
-                for x in COMPONENTS:
-                    if name in COMPONENTS[x]:
-                        cls = COMPONENT_CLASSES[x]
+                    component = cls(name, location, attributes)
+                    components.append(component)
+                    break
 
-                        attributes = dict()
-                        for attr in comp.findall("a"):
-                            attributes[attr.get("name")] = attr.get("val")
+        for wire in circuit.findall("wire"):
+            fr = [int(x) for x in \
+                  wire.get("from").replace("(", "").replace(")", "").split(",")]
+            to = [int(x) for x in \
+                  wire.get("to").replace("(", "").replace(")", "").split(",")]
 
-                        component = cls(name, location, attributes)
-                        components.append(component)
-                        break
-
-            for wire in circuit.findall("wire"):
-                fr = [int(x) for x in \
-                      wire.get("from").replace("(", "").replace(")", "").split(",")]
-                to = [int(x) for x in \
-                      wire.get("to").replace("(", "").replace(")", "").split(",")]
-
-                wires.append((tuple(fr), tuple(to)))
+            wires.append((tuple(fr), tuple(to)))
 
         return Circuit(components, wires)
 

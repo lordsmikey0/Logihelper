@@ -504,6 +504,12 @@ textarea {
     margin: 0;
 }
 
+.circuit-attachment {
+    margin: 0 4px 8px;
+    overflow-wrap: anywhere;
+    font-size: 0.8125rem;
+}
+
 .composer-hint {
     margin: 6px 4px 0;
 }

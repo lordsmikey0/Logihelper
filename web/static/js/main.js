@@ -28,6 +28,8 @@ const browseCircuit = document.getElementById("browse-circuit");
 const circuitFile = document.getElementById("circuit-file");
 const circuitFileStatus = document.getElementById("circuit-file-status");
 const removeCircuit = document.getElementById("remove-circuit");
+const circuitAttachment = document.getElementById("circuit-attachment");
+const circuitDrafts = new Map();
 
 const storageKey = "logihelper.chats";
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -200,7 +202,8 @@ function renderHistory({ focusThread, createdThread } = {}) {
 }
 
 function updateSendButton() {
-    sendButton.disabled = Boolean(pending) || !input.value.trim();
+    input.required = !circuitDrafts.has(selected);
+    sendButton.disabled = Boolean(pending) || (!input.value.trim() && !circuitDrafts.has(selected));
 }
 
 function updateStatus() {
@@ -216,7 +219,7 @@ function updateStatus() {
     }
 }
 
-function addMessage({ role, text }, animate = false) {
+function addMessage({ role, text, circuitName }, animate = false) {
     const message = document.createElement("article");
     message.classList.add("message", role);
 
@@ -228,6 +231,12 @@ function addMessage({ role, text }, animate = false) {
     content.className = "message-content";
     const body = document.createTextNode(text);
     content.append(body);
+    if (circuitName) {
+        const attachment = document.createElement("p");
+        attachment.className = "circuit-attachment muted";
+        attachment.textContent = `Схема: ${circuitName}`;
+        content.prepend(attachment);
+    }
     message.append(author, content);
     chat.append(message);
     if (animate) {
@@ -260,6 +269,7 @@ function selectChat(thread, created = false) {
     }
 
     renderHistory({ createdThread: created ? thread : null });
+    updateCircuitAttachment();
     updateStatus();
     updateSendButton();
     scrollToBottom();
@@ -367,32 +377,41 @@ dialogForm.addEventListener("submit", (event) => {
             renderHistory();
         }
         drafts.delete(thread);
+        circuitDrafts.delete(thread);
         newChat.focus();
     }
 
     saveChats();
 });
 
+function updateCircuitAttachment() {
+    const file = circuitDrafts.get(selected);
+    circuitAttachment.hidden = !file;
+    circuitAttachment.textContent = file ? `Схема: ${file.name}` : "";
+    circuitFileStatus.textContent = file ? `Выбран файл «${file.name}».` : "";
+    removeCircuit.hidden = !file;
+    updateSendButton();
+}
+
 function selectCircuit(files) {
     if (files.length !== 1 || !/\.circ$/i.test(files[0].name)) {
         circuitFile.value = "";
         circuitFileStatus.textContent = "Выберите один файл с расширением .circ.";
-        removeCircuit.hidden = true;
         return;
     }
 
-    circuitFile.files = files;
-    circuitFileStatus.textContent = `Выбран файл «${files[0].name}».`;
-    removeCircuit.hidden = false;
+    circuitDrafts.set(selected, files[0]);
+    circuitFile.value = "";
+    updateCircuitAttachment();
 }
 
 openCircuitDialog.addEventListener("click", () => circuitDialog.showModal());
 browseCircuit.addEventListener("click", () => circuitFile.click());
 circuitFile.addEventListener("change", () => selectCircuit(circuitFile.files));
 removeCircuit.addEventListener("click", () => {
+    circuitDrafts.delete(selected);
     circuitFile.value = "";
-    circuitFileStatus.textContent = "";
-    removeCircuit.hidden = true;
+    updateCircuitAttachment();
     browseCircuit.focus();
 });
 
@@ -433,14 +452,19 @@ input.addEventListener("keydown", (event) => {
 form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const text = input.value.trim();
+    const circuit = circuitDrafts.get(selected);
+    const text = input.value.trim() || (circuit ? "Объясни работу приложенной схемы." : "");
     if (!text || pending) {
         return;
     }
 
     const thread = selected ?? { title: titleFrom(text), messages: [] };
+    if (circuit && !selected) {
+        circuitDrafts.delete(null);
+        circuitDrafts.set(thread, circuit);
+    }
     const request = { thread, controller: new AbortController(), reply: null, body: null };
-    const message = { role: "user", text };
+    const message = { role: "user", text, ...(circuit ? { circuitName: circuit.name } : {}) };
     pending = request;
     notices.delete(thread);
     thread.messages.push(message);
@@ -462,14 +486,18 @@ form.addEventListener("submit", async (event) => {
     let reader;
     let failureNotice;
     try {
+        const payload = { text };
+        if (circuit) {
+            payload.circuit = { name: circuit.name, content: await circuit.text() };
+        }
         const response = await fetch("/ask", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text }),
+            body: JSON.stringify(payload),
             signal: request.controller.signal,
         });
 
-        if (response.status === 502) {
+        if (response.status === 400 || response.status === 502) {
             failureNotice = await response.text();
         }
         if (!response.ok || !response.body) {

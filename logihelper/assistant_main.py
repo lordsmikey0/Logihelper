@@ -49,7 +49,7 @@ def init_model(model_name):
     return model_name
 
 
-def generate_answer(model, query_raw, stream=False):
+def generate_answer(model, query_raw, stream=False, circuit_description=""):
     """
     Generate the answer to the question
     """
@@ -72,6 +72,9 @@ def generate_answer(model, query_raw, stream=False):
     #     if stream:
     #         return iter((answer,))
     #     return {"generated_text": answer, "system_prompt": system_prompt}
+
+    if circuit_description:
+        system_prompt += "\n\nDescription of the user's attached Logisim circuit:\n" + circuit_description
 
     messages = [
         {"role": "system", "content": system_prompt},
