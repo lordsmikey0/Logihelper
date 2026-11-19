@@ -1,4 +1,5 @@
 import logging
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -9,6 +10,7 @@ from pydantic import BaseModel
 import uvicorn
 from starlette.responses import HTMLResponse
 from logihelper.assistant_main import MODEL_NAME, OllamaChatError, generate_answer, init_model
+from logihelper.circ_parser import CircParser
 
 
 WEB_DIR = Path(__file__).resolve().parent / "web"
@@ -30,8 +32,14 @@ app.mount("/css", StaticFiles(directory=WEB_DIR / "static" / "css"), name="css")
 app.mount("/js", StaticFiles(directory=WEB_DIR / "static" / "js"), name="js")
 
 
+class CircuitFile(BaseModel):
+    name: str
+    content: str
+
+
 class Message(BaseModel):
     text: str
+    circuit: CircuitFile | None = None
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -41,8 +49,19 @@ def get_home_page():
 
 @app.post("/ask")
 def ask_assistant(message: Message):
-    user_text = message.text
-    result = generate_answer(model, message.text, stream=True)
+    circuit_description = ""
+    if message.circuit is not None:
+        if not message.circuit.name.lower().endswith(".circ"):
+            return PlainTextResponse("Выберите файл с расширением .circ.", status_code=400)
+        try:
+            circuit_description = CircParser.parse_text(message.circuit.content).describe_circuit()
+        except (ET.ParseError, ValueError, AttributeError, TypeError) as error:
+            logger.info("Circuit parsing failed: %s", error)
+            return PlainTextResponse(
+                "Не удалось разобрать схему. Проверьте файл .circ и поддерживаемые компоненты.",
+                status_code=400,
+            )
+    result = generate_answer(model, message.text, stream=True, circuit_description=circuit_description)
 
     try:
         first_chunk = next(result, "")

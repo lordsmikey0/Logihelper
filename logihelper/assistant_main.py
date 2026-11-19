@@ -49,7 +49,7 @@ def init_model(model_name):
     return model_name
 
 
-def generate_answer(model, query_raw, stream=False):
+def generate_answer(model, query_raw, stream=False, circuit_description=""):
     """
     Generate the answer to the question
     """
@@ -73,6 +73,9 @@ def generate_answer(model, query_raw, stream=False):
     #         return iter((answer,))
     #     return {"generated_text": answer, "system_prompt": system_prompt}
 
+    if circuit_description:
+        system_prompt += "\n\nDescription of the user's attached Logisim circuit:\n" + circuit_description
+
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": query_raw}
@@ -82,7 +85,11 @@ def generate_answer(model, query_raw, stream=False):
         "model": model,
         "messages": messages,
         "stream": True,
-        "options": {"temperature": 0.5, "num_predict": 384, "num_ctx": 2048},
+        "options": {"temperature": 0.5,
+                    "num_predict": 384,
+                    "num_ctx": 2048,
+                    "repeat_penalty": 1.15,
+                    "repeat_last_n": 128,},
     }
 
     def token_generator():
