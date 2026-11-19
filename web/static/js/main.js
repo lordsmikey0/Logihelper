@@ -415,23 +415,40 @@ removeCircuit.addEventListener("click", () => {
     browseCircuit.focus();
 });
 
-circuitDialog.addEventListener("dragover", (event) => {
-    if (event.dataTransfer.types.includes("Files")) {
-        event.preventDefault();
-        const overDropZone = circuitDropZone.contains(event.target);
-        event.dataTransfer.dropEffect = overDropZone ? "copy" : "none";
-        circuitDropZone.classList.toggle("is-dragging", overDropZone);
+function handleCircuitDrag(event) {
+    if (!event.dataTransfer.types.includes("Files")) {
+        return;
     }
-});
-circuitDropZone.addEventListener("dragleave", (event) => {
-    if (!circuitDropZone.contains(event.relatedTarget)) {
+
+    event.preventDefault();
+    if (dialog.open) {
+        event.dataTransfer.dropEffect = "none";
+        return;
+    }
+    if (!circuitDialog.open) {
+        circuitDialog.showModal();
+    }
+    event.dataTransfer.dropEffect = "copy";
+    circuitDropZone.classList.add("is-dragging");
+}
+
+document.addEventListener("dragenter", handleCircuitDrag);
+document.addEventListener("dragover", handleCircuitDrag);
+document.addEventListener("dragleave", (event) => {
+    if (!event.relatedTarget) {
         circuitDropZone.classList.remove("is-dragging");
     }
 });
-circuitDialog.addEventListener("drop", (event) => {
+document.addEventListener("drop", (event) => {
+    if (!event.dataTransfer.types.includes("Files")) {
+        return;
+    }
     event.preventDefault();
     circuitDropZone.classList.remove("is-dragging");
-    if (circuitDropZone.contains(event.target) && event.dataTransfer.files.length) {
+    if (!dialog.open && event.dataTransfer.files.length) {
+        if (!circuitDialog.open) {
+            circuitDialog.showModal();
+        }
         selectCircuit(event.dataTransfer.files);
     }
 });
